@@ -1,0 +1,30 @@
+body{
+    background-color: #34495e;
+}
+
+.list-group-item{
+    background-color: #34495e !important;
+}
+
+.stock-row{
+    cursor: pointer;
+}
+
+.num-bold{
+    font-size: 19pt;
+    font-weight: bold;
+}
+
+.s-name{
+    overflow:hidden; 
+    white-space:nowrap; 
+    text-overflow: ellipsis;
+}
+
+.g-total{
+    font-weight: bold;
+}
+
+.g-me{
+    background-color: #314e77 !important;
+}

@@ -1,0 +1,5 @@
+SECRET_KEY = "d909837e7ea4525d004cac5ed07795ff"
+DB_USER = "ass"
+DB_PASSWORD = "ass"
+DB_PORT = '5432'
+API_KEY = 'c30l912ad3i9gms5vfs0'

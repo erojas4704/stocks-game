@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block nav %}
+<li class="nav-item active">
+  <a class="nav-link" href="/games/{{game.id}}/stocks">Stocks<span class="sr-only">(current)</span></a>
+</li>
+{% endblock %}
+
+{% block body %}
+<input id="session-data" type="hidden" 
+data-gameid="{{game.id}}">
+<div id="timer"></div>
+
+<div class="container-fluid">
+    {% if not game.active %}
+        <div class="row pb-2">
+            The game hasn't started yet.
+        </div>
+        <div class="row pb-2">
+        {% if game.host_id == user.id and game.players|length < 2 %}
+            You need at least one more person to start the game.
+        {% endif %}
+        </div>
+        <div class="row pb-2">
+            <!-- If I'm the host and there's more than 2 players, offer the option to start the game.-->
+            {% if game.host_id == user.id %}
+            <form class="form-inline" method="POST" action="/games/{{game.id}}/start">
+                <button type="submit" class="btn btn-info" {% if game.players|length < 2%}disabled{%endif%}>Start Game</button>
+            </form>
+            {% endif %}
+            <!-- If I'm not part of this game and I'm logged in, offer the option to join the game.-->
+            {% if not game.get_player(user) and user %}
+            <form class="form-inline" method="POST" action="/games/{{game.id}}/join">
+                <button type="submit" class="btn btn-success">Join Game</button>
+            </form>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+<div class="row">
+    <div class="col-md-5">
+        <ul class="list-group">
+            {% for player in game.players %}
+            <li class="player-frame list-group-item {% if g.user.id == player.user_id%} active {% endif %}" data-playerid="{{player.id}}">
+                <div class="row">
+                    <div class="col">
+                        {% if game.host_id == player.user.id %}<i class="fas fa-crown pr-2 mb-2"></i>{% endif %}<span class="h5">{{player.user.displayname}}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="g-total col">Total: {{format_money(player.get_total_worth())}}</div>
+                    <div class="g-balance col">Balance: {{format_money(player.balance)}}</div>
+                </div>
+                <div class="row">
+                    <div class="g-portfolio col">Portfolio: {{format_money(player.get_portfolio_value())}}</div>
+                    <div class="g-return col">Return: $0</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+    <!-- TODO. Using a transpiler, maybe remake these into modules, if there's time. -->
+    <script src="/js/modal.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/game.js"></script>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block nav %}
+<li class="nav-item active">
+    <a class="nav-link" href="/games/{{game.id}}">Game<span class="sr-only">(current)</span></a>
+</li>
+{% endblock %}
+
+{% block body %}
+
+<div class="row justify-content-start">
+    <input id="session-data" type="hidden" data-playerid="{{player.id}}" data-gameid="{{game.id}}">
+
+    <div class="col-md-9">
+        <div id="plr-balance">Balance: {{format_money(player.balance)}}</div>
+            <div class="col">
+                <div class="h3">My Portfolio</div>
+                <table id="shares-owned" class="table table-dark table-hover table-striped">
+                    <thead>
+                        <th style="min-width: 0"></th>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Shares</th>
+                        <th>Equity</th>
+                        <th>Return</th>
+                        <th>Price</th>
+                    </thead>
+                    <tbody>
+                        {% for st in player.stocks %}
+                        {% if stocks[st.symbol] %}
+                        {% set stock = stocks[st.symbol] %}
+                        <tr class="stock-row">
+                            <td>
+                                <div class="loader spinner-border text-info spinner-border-sm"></div>
+                            </td>
+                            <td> <span class="badge badge-success s-symbol"> {{stock.symbol}} </span></td>
+                            <td class="s-name">{{stock.name}}</td>
+                            <td class="s-shares"></td>
+                            <td class="s-equity"></td>
+                            <td class="s-return"></td>
+                            <td class="s-current">{{format_money(stock.current)}}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        <div class="col">
+            <div class="h3">Marketplace</div>
+                <table id="shares-market" class="table table-dark table-hover table-striped">
+                    <thead>
+                        <th style="min-width: 0"></th>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Shares</th>
+                        <th>Equity</th>
+                        <th>Return</th>
+                        <!--<th>Open</th>
+                                <th>Last Close</th>
+                                <th>High</th>
+                                <th>Low</th> -->
+                        <th>Price</th>
+                    </thead>
+                    <tbody>
+                        {% for stock in stocks %}
+                        <tr class="stock-row">
+                            <td>
+                                <div class="loader spinner-border text-info spinner-border-sm"></div>
+                            </td>
+                            <td> <span class="badge badge-success s-symbol"> {{stock.symbol}} </span></td>
+                            <td class="s-name">{{stock.name}}</td>
+                            <td class="s-shares"></td>
+                            <td class="s-equity"></td>
+                            <td class="s-return"></td>
+                            <!--<td class="s-open">{{format_money(stock.open)}}</td>
+                                        <td class="s-close">{{format_money(stock.close)}}</td>
+                                        <td class="s-high">{{format_money(stock.high)}}</td>
+                                        <td class="s-low">{{format_money(stock.low)}}</td> -->
+                            <td class="s-current">{{format_money(stock.current)}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+    </div>
+
+    <div class="col mr-4" id="form_purchase">
+        <div class="row border-bottom mb-4 pb-2">
+            <div class="display-4 col px-0" id="pp-symbol"></div>
+            <div class="col pt-2">
+                <div id="pp-name"></div>
+                <div id="pp-current"></div>
+            </div>
+        </div>
+        <div class="h5 pb-4">Your position</div>
+        <div class="row justify-content-center">
+            <div class="col">
+                <div id="">Price:</div>
+                <div>Open:</div>
+                <div>Last Close:</div>
+                <div>High:</div>
+                <div>Low:</div>
+            </div>
+            <div class="col-7">
+
+                <div class="row justify-content-center">You own</div>
+                <div class="row justify-content-center num-bold" id="sp-shares">0</div>
+                <div class="row justify-content-center">shares</div>
+            </div>
+
+            <div>
+                <div class="row justify-content-center pt-4">
+                    <button class="btn btn-outline-success rounded-left" data-purchase="true" id="btn-buy">Buy</button>
+                    <button class="btn btn-outline-primary rounded-right" data-purchase="false"
+                        id="btn-sell">Sell</button>
+                </div>
+                <div id="company-desc" class="row justify-content-center pt-4">
+                    Maybe a tiny blurb about the company.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<!-- TODO. Using a transpiler, maybe remake these into modules, if there's time. -->
+<script src="/js/modal.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/stocks.js"></script>
+{% endblock %}
