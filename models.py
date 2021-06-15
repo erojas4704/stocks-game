@@ -3,11 +3,11 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_bcrypt import Bcrypt
-from datetime import date, timedelta, datetime
+from datetime import timedelta, datetime
 import market
 import os
 
-STOCK_UPDATE_LIMIT_MINUTES = os.environ.get("STOCK_UPDATE_LIMIT_MINUTES")
+STOCK_UPDATE_LIMIT_MINUTES = float(os.environ.get("STOCK_UPDATE_LIMIT_MINUTES"))
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()

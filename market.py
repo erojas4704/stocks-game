@@ -33,7 +33,6 @@ def basic_details(symbol):
 
     return json
 
-    
 def quote(symbol):
     """Using a stock's symbol, return a dict containing pricing for the stock"""
     global calls
