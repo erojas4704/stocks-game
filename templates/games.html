@@ -14,7 +14,7 @@
     </div>
     <div class="col-3">
         <div class="h3">Public Games</div>
-        <ul class="list-group">
+        <ul class="list-group"></ul>
             {% if public_games%}
             {% for game in public_games %}
             <a href="/games/{{game.id}}" class="list-group-item">Game {{game.id}}</a>

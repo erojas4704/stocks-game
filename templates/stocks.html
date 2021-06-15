@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
+{% set navclass = "nav-game-mode" %}
 {% block nav %}
 <li class="nav-item active">
-    <a class="nav-link" href="/games/{{game.id}}">Game<span class="sr-only">(current)</span></a>
+    <a class="nav-link" href="/games/{{game.id}}">Session<span class="sr-only">(current)</span></a>
 </li>
 {% endblock %}
 
@@ -83,7 +84,7 @@
         </div>
     </div>
 
-    <div class="col mr-4" id="form_purchase">
+    <div class="col pt-3 mr-4" id="form_purchase">
         <div class="row border-bottom mb-4 pb-2">
             <div class="display-4 col px-0" id="pp-symbol"></div>
             <div class="col pt-2">
@@ -94,13 +95,13 @@
         <div class="h5 pb-4">Your position</div>
         <div class="row justify-content-center">
             <div class="col">
-                <div id="">Price:</div>
-                <div>Open:</div>
-                <div>Last Close:</div>
-                <div>High:</div>
-                <div>Low:</div>
+                <div>Price: <span id="pp-price"></span></div>
+                <div>Open: <span id="pp-open"></span></div>
+                <div>Last Close: <span id="pp-close"></span></div>
+                <div>High: <span id="pp-high"></span></div>
+                <div>Low: <span id="pp-low"></span></div>
             </div>
-            <div class="col-7">
+            <div class="col-6">
 
                 <div class="row justify-content-center">You own</div>
                 <div class="row justify-content-center num-bold" id="sp-shares">0</div>

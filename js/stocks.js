@@ -1,3 +1,5 @@
+let getR;
+
 $( () => {
 
     const data = $("#session-data");
@@ -9,8 +11,10 @@ $( () => {
     let selectedSymbol;
     let stockData = {};
 
+
     function getRow(symbol, table = marketTable){
         let result;
+
         $(".stock-row", table).each( (i, node) => {
             let row = $(node);
             
@@ -21,6 +25,9 @@ $( () => {
 
         return result;
     }
+    //TODO erase
+    getR = getRow;
+
 
     function updateListing(symbol){
         let row = getRow(symbol);
@@ -94,6 +101,11 @@ $( () => {
         getStockDetails(symbol).then( data => {
             $("#pp-name").text(name);
             $("#pp-current").text( formatMoney(data.current));
+            $("#pp-price").text( formatMoney(data.current) );
+            $("#pp-open").text( formatMoney(data.open) );
+            $("#pp-close").text( formatMoney(data.close) );
+            $("#pp-high").text( formatMoney(data.high) );
+            $("#pp-low").text( formatMoney(data.low) );
         });
     }
 
@@ -143,6 +155,8 @@ $( () => {
             .then( data => {
                 unlockModal();
                 console.log(data);
+                playerData = data.player;
+                populatePlayerStocks();
                 if(data.response)
                     openModal('Success!', data.response);
                 else if(data.error)
@@ -262,8 +276,8 @@ $( () => {
 
     function populatePlayerStocks(){
         playerStats.stocks.forEach(stock => {
-
-            let row = getRow(stock, playerTable);
+            symbol = stock.symbol;
+            let row = getRow(symbol, playerTable);
             
             if(!row){
                 createRow(stock.symbol, playerTable);
@@ -280,6 +294,13 @@ $( () => {
         });
     }
 
+    function calculateReturn(playerStock, stock){
+        let value = 0;
+        value = stock.current * playerStock.quantity - playerStock.money_spent;
+        console.log(stock, playerStock);
+        return value;
+    }
+
     async function createRow(symbol, table){
         let stock = stockData[symbol];
         if(!stock)
@@ -287,18 +308,14 @@ $( () => {
 
         let playerStock = getOwnedStock(symbol);
 
-        console.log("Got stock ", stock);
-        console.log(table);
-        console.log($('tbody', table));
-
         $('tbody', table).append(`
             <tr class="stock-row">
                 <th> <div class="loader spinner-border text-info spinner-border-sm d-none"></div> </th>
                 <td> <span class="badge badge-success s-symbol"> ${symbol} </span></td>
                 <td class="s-name">${stock.name}</td>
-                <td class="s-shares">${formatMoney( playerStock.quantity)}</td>
+                <td class="s-shares">${playerStock.quantity}</td>
                 <td class="s-equity">${formatMoney( playerStock.quantity * stock.current )}</td>
-                <td class="s-return"></td>
+                <td class="s-return">${formatMoney( calculateReturn(playerStock, stock) ) || formatMoney(0)}</td>
                 <td class="s-current">${stock.current}</td>
             </tr>      
         `);
@@ -314,7 +331,8 @@ $( () => {
     $("#btn-buy").click(tradeHandler);
     $("#btn-sell").click(tradeHandler);
     
-    $(".stock-row").click( "tr",  e => {
-        populatePurchaseForm(e.delegateTarget)
+    $("tbody").click( "tr",  e => {
+        let delegate = $(e.target).parent("tr");
+        populatePurchaseForm(delegate)
     });
 });
