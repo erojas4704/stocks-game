@@ -45,8 +45,42 @@ $(() => {
         });
     }
 
+    function wipeFrame(frame){
+        $('.g-name', frame).html("")
+        $('.g-portfolio', frame).html("");
+        $('.g-balance', frame).html("");
+        $('.g-total', frame).html("");
+        $('.g-return', frame).html("");
+    }
+    
+    function createPlayerFrame(player){
+        //Copy the first frame so we only have to edit it there.
+        let frame = $(".player-frame")
+            .first()
+            .clone()
+            .appendTo("#list-players");
+
+        console.log(player.id);
+        console.log(frame);
+
+        frame.attr("data-playerid", player.id);
+        frame.removeClass("active");
+        
+        wipeFrame(frame);
+
+        return frame;
+    }
+
     function renderPlayer(player){
-        let frame = getPlayerFrame(player.id)
+        let frame = getPlayerFrame(player.id);
+        console.log(`Renedering ${player.id}`);
+        console.log("Frame", frame)
+
+        if(frame.length < 1){
+            //Frame does not exist
+            console.log("Creating frame for player ", player.id);
+            frame = createPlayerFrame(player);
+        }
         let total = player.portfolio + player.balance;
         let returns = player.portfolio - getTotalSpentByPlayer(player);
         let className = "";
@@ -59,6 +93,7 @@ $(() => {
             className = "text-danger";
         }
 
+        $('.g-name', frame).text(player.user.displayname)
         $('.g-portfolio', frame).text(`Portfolio: ${formatMoney(portfolioValue)} `);
         $('.g-balance', frame).text(`Balance: ${formatMoney(player.balance)} `);
         $('.g-total', frame).text(`Total: ${formatMoney(total)} `);
@@ -71,6 +106,7 @@ $(() => {
 
     async function getAndRenderStateFromRemote(){
         let resp = await getGameInfo(gameID);
+        console.log(resp);
 
         game = resp;
 
@@ -91,12 +127,10 @@ $(() => {
 
     function updateTimer(secondsRemaining){
         $("#timer").text("Game ends in " + secondsToEnglish(secondsRemaining));
-        console.log("TIMER")
-        console.log("Game ends in " + secondsToEnglish(secondsRemaining))
+        console.log(secondsRemaining);
 
-        if(!game.active || secondsRemaining < 0 ){
+        if(secondsRemaining < 0 ){
             $("#timer").text('');
-            return;
         }
 
         if(timerActive) {

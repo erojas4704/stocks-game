@@ -6,8 +6,9 @@ from models import User, connect_db, db, Game, Player, Stock, PlayerStock
 from flask_sqlalchemy import SQLAlchemy
 from forms import RegisterForm, LoginForm, NewGameForm
 from sqlalchemy.exc import IntegrityError
-from utils import format_money
+from utils import format_money, get_money_class, get_ordinal
 from dotenv import load_dotenv
+import helpers
 import os
 
 load_dotenv()
@@ -23,6 +24,8 @@ CURR_USER_KEY = "user_key"
 connect_db(app)
 
 app.jinja_env.globals['format_money'] = format_money
+app.jinja_env.globals['get_money_class'] = get_money_class
+app.jinja_env.globals['get_ordinal'] = get_ordinal
 
 @app.before_request
 def add_user_to_g():
@@ -110,6 +113,7 @@ def view_game(game_id):
     """View Game Page"""
     game = Game.query.get(game_id)
     if game:
+        game.players.sort(key = helpers.placement_sort, reverse = True)
         return render_template('game.html', user = g.user, game = game)
 
     flash("Invalid game session.")
@@ -232,6 +236,7 @@ def sell_stock(game_id):
     player.balance += cash_amt
 
     db.session.commit()
+    game.add_message(player, f"{player.user.displayname} sold {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.")
     
     return jsonify({
         'response': f"You have successfully sold {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.",
@@ -265,7 +270,7 @@ def buy_stock(game_id):
     cash_amt = float(data.get("amount")) #Try not to spend more than 1% of the desired amount
     cash_amt = stock_amt * stock.current
 
-    print(f"Trying to execute purchase for {symbol}. Spending {cash_amt} for {stock_amt} stocks.")
+    #print(f"Trying to execute purchase for {symbol}. Spending {cash_amt} for {stock_amt} stocks.")
 
     if cash_amt > player.balance:
         return jsonify({
@@ -285,7 +290,8 @@ def buy_stock(game_id):
     player.balance -= cash_amt
 
     db.session.commit()
-    
+    game.add_message(player, f'{player.user.displayname} purchased {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.')
+
     return jsonify({
         'response': f"You have successfully purchased {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.",
         'player': player.serialize()

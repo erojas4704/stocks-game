@@ -22,6 +22,10 @@ class LoginForm(FlaskForm):
 class NewGameForm(FlaskForm):
     """Form for creating a new game"""
     fractional_shares = BooleanField('Allow Fractional Shares')
+    off_market_trading = BooleanField('Allow Off-Market Trading')
+
+    name = StringField('Lobby Name', render_kw={"placeholder": "Example: The Trading Floor"})
+
     max_players = IntegerField('Maximum Players', 
                                         widget=NumberInput(min = 1, max = 15, step = 1), 
                                         validators=[InputRequired()],

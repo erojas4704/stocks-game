@@ -200,6 +200,17 @@ class Player(db.Model):
 
         return value
 
+    def get_return(self):
+        """Calculate the money gained from stocks."""
+        value = 0
+        spent = 0
+        for stock in self.stocks:
+            value += stock.quantity * stock.stock.current
+            spent += stock.money_spent
+        
+        return value - spent
+
+
 
     def serialize(self):
         """Return a dictionary describing this object."""
@@ -209,12 +220,47 @@ class Player(db.Model):
             "userID": self.user_id,
             "balance": self.balance,
             "color": self.color,
+            "returns": self.get_return(),
             "portfolio": self.get_portfolio_value(),
+            "user": self.user.serialize(),
             "stocks": [stock.serialize() for stock in self.stocks]
         }
 
     def __repr__(self):
         return f"<{self.user.displayname}: {self.balance}>"
+
+class Message(db.Model):
+    """Message for user activity or chat"""
+    __tablename__ = 'messages'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    player = db.relationship("Player")
+
+    player_id = db.Column(
+        db.Integer,
+        db.ForeignKey('players.id', ondelete="cascade")
+    )
+
+    message = db.Column(
+        db.Text,
+        nullable = False
+    )
+
+    game_id = db.Column(
+        db.Integer,
+        db.ForeignKey('games.id')
+    )
+
+    timestamp = db.Column(db.DateTime, default = datetime.now())
+
+    def serialize(self):
+        """JSON Friendly Dict"""
+        return {
+            'timestamp': self.timestamp.serialize(),
+            'message': self.message.serialize(),
+            'player': self.player.serialize()
+        }
 
 class Game(db.Model):
     """The model for the Game"""
@@ -222,15 +268,21 @@ class Game(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
+    name = db.Column(db.Text) #TODO limit size
     start = db.Column(db.DateTime)
     end = db.Column(db.DateTime)
     starting_balance = db.Column(db.Float, nullable=False)
-    max_players = db.Column(db.Integer, nullable=False)
-    fractional_shares = db.Column(db.Boolean)
-    password = db.Column(db.Text)
+    max_players = db.Column(db.Integer, nullable=False) #TODO not yet implemented
+    fractional_shares = db.Column(db.Boolean) #TODO not yet implemented
+    allow_off_market = db.Column(db.Boolean) #TODO not yet implemented
+    password = db.Column(db.Text)#TODO not yet implemented
     minutes = db.Column(db.Float, nullable=False)
     hours = db.Column(db.Float, nullable=False)
     days = db.Column(db.Float, nullable=False)
+    
+    messages = relationship(
+        "Message"
+    )
 
     host_id = db.Column(
         db.Integer,
@@ -279,6 +331,14 @@ class Game(db.Model):
             return None
             
         return player
+
+    def add_message(self, player, message):
+        message = Message(player_id = player.id, 
+            game_id = self.id, 
+            message = message
+        )
+        db.session.add(message)
+        db.session.commit()
 
     def add_player(self, user, password = None):
         """Add player to the game if a player isn't already in the game and the password is correct"""
@@ -333,6 +393,12 @@ class User(db.Model):
         primaryjoin=(Player.user_id == id),
     )
 
+    def serialize(self):
+        """Return JSON friendly"""
+        return {
+            'id': self.id,
+            'displayname': self.displayname
+        }
 
 
     @classmethod
