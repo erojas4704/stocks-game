@@ -1,7 +1,9 @@
 """Exposes methods for retrieving and handling stock market data."""
 import requests
-from secrets import API_KEY
 from threading import Timer
+import os
+
+API_KEY = os.environ.get("API_KEY")
 
 calls = 0
 

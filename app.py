@@ -4,18 +4,20 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import User, connect_db, db, Game, Player, Stock, PlayerStock
 #from forms import RegisterUserForm, LoginForm, FeedbackForm, PasswordForm
 from flask_sqlalchemy import SQLAlchemy
-from secrets import SECRET_KEY, DB_USER, DB_PASSWORD, DB_PORT
 from forms import RegisterForm, LoginForm, NewGameForm
 from sqlalchemy.exc import IntegrityError
 from utils import format_money
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 app = Flask(__name__)
 
 app.config['TESTING'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASSWORD}@localhost:{DB_PORT}/stocksgame'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 CURR_USER_KEY = "user_key"
 
 connect_db(app)
