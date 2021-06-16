@@ -1,7 +1,7 @@
 """Flask app 24.5"""
 from flask import Flask, send_from_directory, request, redirect, render_template, flash, jsonify, session, g 
 from flask_debugtoolbar import DebugToolbarExtension
-from models import User, connect_db, db, Game, Player, Stock, PlayerStock
+from models import User, connect_db, db, Game, Player, Stock, PlayerStock, Message
 #from forms import RegisterUserForm, LoginForm, FeedbackForm, PasswordForm
 from flask_sqlalchemy import SQLAlchemy
 from forms import RegisterForm, LoginForm, NewGameForm
@@ -112,6 +112,7 @@ def join_game(game_id):
 def view_game(game_id):
     """View Game Page"""
     game = Game.query.get(game_id)
+    
     if game:
         game.players.sort(key = helpers.placement_sort, reverse = True)
         return render_template('game.html', user = g.user, game = game)
@@ -176,6 +177,14 @@ def get_game_info(game_id):
     game = Game.query.get_or_404(game_id)
     game_dict = game.serialize()
     return jsonify(game_dict), 201
+
+@app.route('/api/games/<game_id>/messages', methods=['GET'])
+def get_game_messages(game_id):
+    """Given a game ID, get the game messages"""
+    messages = Message.query.filter(Message.game_id == game_id).limit(8)
+    list_msg = [msg.serialize() for msg in messages]
+    print(messages)
+    return jsonify(list_msg), 201
 
 
 @app.route('/api/games/<game_id>/player', methods=['get'])

@@ -257,9 +257,8 @@ class Message(db.Model):
     def serialize(self):
         """JSON Friendly Dict"""
         return {
-            'timestamp': self.timestamp.serialize(),
-            'message': self.message.serialize(),
-            'player': self.player.serialize()
+            'timestamp': self.timestamp,
+            'message': self.message
         }
 
 class Game(db.Model):
@@ -280,9 +279,6 @@ class Game(db.Model):
     hours = db.Column(db.Float, nullable=False)
     days = db.Column(db.Float, nullable=False)
     
-    messages = relationship(
-        "Message"
-    )
 
     host_id = db.Column(
         db.Integer,

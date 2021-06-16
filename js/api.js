@@ -23,3 +23,8 @@ async function getGameInfo(gameID){
     let resp = await axios.get(`/api/games/${gameID}/info`)
     return resp.data;
 }
+
+async function getMessages(gameID){
+    let resp = await axios.get(`/api/games/${gameID}/messages`)
+    return resp.data;
+}

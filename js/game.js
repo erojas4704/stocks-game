@@ -142,10 +142,23 @@ $(() => {
                 getAndRenderStateFromRemote().then( r => {
                     timerActive = true;
                 });
+                getMessages(gameID).then( msg => {
+                    renderMessages(msg);
+                });
             }
         }
 
 
+    }
+
+    function renderMessages(messages){
+        $("#messages").empty();
+
+        messages.forEach(message => {
+            $("#messages").append(`
+                <div>${message.message}</div>
+            `)
+        });
     }
 
     function secondsToEnglish(seconds){

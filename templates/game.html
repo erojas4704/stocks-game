@@ -66,6 +66,11 @@ data-gameid="{{game.id}}">
             {% endfor %}
         </ul>
     </div>
+    <div class="col" id="messages">
+        {% for msg in game.messages %}
+            {{msg.message}}
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
 {% block scripts %}
