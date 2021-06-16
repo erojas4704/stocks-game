@@ -181,7 +181,7 @@ def get_game_info(game_id):
 @app.route('/api/games/<game_id>/messages', methods=['GET'])
 def get_game_messages(game_id):
     """Given a game ID, get the game messages"""
-    messages = Message.query.filter(Message.game_id == game_id).limit(8)
+    messages = Message.query.filter(Message.game_id == game_id).order_by(Message.timestamp.desc()).limit(8)
     list_msg = [msg.serialize() for msg in messages]
     print(messages)
     return jsonify(list_msg), 201
@@ -245,7 +245,7 @@ def sell_stock(game_id):
     player.balance += cash_amt
 
     db.session.commit()
-    game.add_message(player, f"{player.user.displayname} sold {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.")
+    game.add_message(player, f"{player.user.displayname} sold {stock_amt} shares of %s{owned_stock.symbol}% for {format_money(cash_amt)} at {stock.current} each.")
     
     return jsonify({
         'response': f"You have successfully sold {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.",
@@ -299,7 +299,7 @@ def buy_stock(game_id):
     player.balance -= cash_amt
 
     db.session.commit()
-    game.add_message(player, f'{player.user.displayname} purchased {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.')
+    game.add_message(player, f'{player.user.displayname} purchased {stock_amt} shares of %s{owned_stock.symbol}% for {format_money(cash_amt)} at {stock.current} each.')
 
     return jsonify({
         'response': f"You have successfully purchased {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.",

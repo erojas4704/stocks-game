@@ -103,7 +103,14 @@ class Stock(db.Model):
             self.close = resp['pc']
             self.high = resp['h']
             self.low = resp['l']
+        
+        history = StockHistory(
+            symbol = self.symbol,
+            timestamp = datetime.now(),
+            price = self.current
+        )
 
+        db.session.add(history)
         db.session.commit()
         return resp
 
@@ -367,7 +374,28 @@ class Game(db.Model):
         """Given a duration, creates a game and automatically sets the start time to be now and end time to be start time + the duration."""
         return Game()
     
+class StockHistory(db.Model):
+    """History of stock prices"""
 
+    __tablename__ = 'stockhistory'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    
+    symbol = db.Column(
+        db.Text,
+        nullable = False
+    )
+
+    price = db.Column(
+        db.Float,
+        default = 0,
+        nullable = False
+    )
+
+    timestamp = db.Column(
+        db.DateTime, 
+        default = datetime.now(),
+        nullable = False
+    )
 
 
 class User(db.Model):

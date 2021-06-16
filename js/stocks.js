@@ -36,19 +36,38 @@ $( () => {
         getStockDetails(symbol).then(
             data => {
                 renderRow(symbol, data);
+                //renderRow(symbol, data, playerTable);
                 $(".loader", row).hide();
             }
         );
     }
 
-    function renderRow(symbol, data){
-        row = getRow(symbol);
+    function renderRow(symbol, data, table = marketTable){
+        let row = getRow(symbol);
         if(!row) return;
 
         if(playerStats){
+
+            let returns = 0;
+            
+            if(stockData[symbol] && getOwnedStock(symbol)){
+                returns = calculateReturn(getOwnedStock(symbol), data); 
+            }
+
             $(".s-shares" , row).text( getShares(symbol) );
             $(".s-equity" , row).text( formatMoney( getEquity(symbol) ) );
-            $(".s-return" , row).text( "0.00" );
+            $(".s-return" , row).text( formatMoney( returns , true) || formatMoney(0) );
+
+            $(".s-return", row).removeClass("text-danger text-success");
+            let classes = "";
+
+            if(returns > 0){
+                classes = "text-success"
+            }else if( returns < 0){
+                classes = "text-danger";
+            }
+            $(".s-return", row).addClass(classes);
+            //${formatMoney( calculateReturn(playerStock, stock) ) || formatMoney(0)}
         }
 
         if(data){
@@ -199,15 +218,17 @@ $( () => {
     
     function generateBuyModal(stock, buyMode){
         let html = `
-            <div class="pb-3"> ${buyMode? "Purchasing" : "Selling" } at ${formatMoney(stock.current)} each</div>
-            <form>
+            <div class=""> ${buyMode? "Purchasing" : "Selling" } at ${formatMoney(stock.current)} each</div>
+            <div>Available balance: ${formatMoney(playerStats.balance)}</div>
+            <div>${buyMode? "" : "Shares available: "} </div>
+            <form class="pt-3">
                 <div class="form-group">
                     <label for="purchase_dollar_amt">Amount ($)</label>
                     <input min="0" type="number" class="form-control" name="price_amt" id="purchase_dollar_amt" placeholder="0" ${buyMode? '' : 'disabled'}>
                 </div>
                 
                 <div class="form-group">
-                    <label for="purchase_stock_amt">Stocks</label>
+                    <label for="purchase_stock_amt">Shares</label>
                     <input min="0" type="number" class="form-control" name="stocks_amt" id="purchase_stock_amt" placeholder="0">
                 </div>
 
@@ -287,9 +308,9 @@ $( () => {
                     getStockDetails(symbol).then( data => {
                         renderRow(stock.symbol, data);
                     });
+                }else{
+                    renderRow(stock.symbol, st);
                 }
-
-                renderRow(stock.symbol, st);
             }
         });
     }
@@ -308,11 +329,15 @@ $( () => {
 
         let playerStock = getOwnedStock(symbol);
 
+        let stockPerformance = stock.current - stock.open;
+
+        //TODO copy an existing template instea of remaking it here
         $('tbody', table).append(`
             <tr class="stock-row">
                 <th> <div class="loader spinner-border text-info spinner-border-sm d-none"></div> </th>
                 <td> <span class="badge badge-success s-symbol"> ${symbol} </span></td>
                 <td class="s-name">${stock.name}</td>
+                <td class="s-performance ${getMoneyClass(stockPerformance)}">${formatMoney(stockPerformance, true, true)}</td>
                 <td class="s-shares">${playerStock.quantity}</td>
                 <td class="s-equity">${formatMoney( playerStock.quantity * stock.current )}</td>
                 <td class="s-return">${formatMoney( calculateReturn(playerStock, stock) ) || formatMoney(0)}</td>

@@ -1,12 +1,12 @@
 $(() => {
+    const POLLRATE = 8;
     const data = $("#session-data");
     const gameID = data.data("gameid");
     let game;
-    let pollTimer = 0;
+    let pollTimer = POLLRATE;
     let timerActive = true;
     let stockData = {};
 
-    const POLLRATE = 1;
 
     //TODO poll the server every X amount of seconds. We'll be moving to sockets soon instead of this.
 
@@ -156,7 +156,7 @@ $(() => {
 
         messages.forEach(message => {
             $("#messages").append(`
-                <div>${message.message}</div>
+                <div>${formatMessageString( message.message )}</div>
             `)
         });
     }

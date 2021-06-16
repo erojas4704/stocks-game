@@ -7,6 +7,8 @@ API_KEY = os.environ.get("API_KEY")
 
 calls = 0
 
+#TODO find a way to delay calls that are ignored.
+
 
 r = requests.get('https://finnhub.io/api/v1/search?q=apple&token=c30l912ad3i9gms5vfs0')
 
@@ -54,6 +56,8 @@ def quote(symbol):
     if json.get("error"):
         print("WE HAVE BEEN RATE LIMITED")
         return False
+
+    
 
     return resp.json()
 
