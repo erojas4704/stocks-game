@@ -12,11 +12,13 @@ STOCK_UPDATE_LIMIT_MINUTES = float(os.environ.get("STOCK_UPDATE_LIMIT_MINUTES"))
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
+
 def connect_db(app):
     """Connect to Database"""
     db.app = app
     db.init_app(app)
     db.create_all()
+
 
 class Stock(db.Model):
     """The model for stocks"""
@@ -113,6 +115,7 @@ class Stock(db.Model):
         db.session.add(history)
         db.session.commit()
         return resp
+
 
 class PlayerStock(db.Model):
     """The model for a player's stocks"""

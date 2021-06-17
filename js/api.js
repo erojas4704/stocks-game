@@ -14,6 +14,13 @@
     return resp.data;
 }
 
+/**Search for a stock by the symbol or company name.
+ */
+async function findStock(term){
+    let resp = await axios.get(`/api/stock/search?term=${term}`)
+    return resp.data;
+}
+
 async function getPlayerStats(gameID){
     let resp = await axios.get(`/api/games/${gameID}/player`)
     return resp.data;

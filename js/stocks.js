@@ -51,12 +51,18 @@ $( () => {
             let returns = 0;
             
             if(stockData[symbol] && getOwnedStock(symbol)){
-                returns = calculateReturn(getOwnedStock(symbol), data); 
+                returns = calculateReturn(getOwnedStock(symbol), stockData[symbol]); 
             }
+
+            let stockPerformance = data.current - data.open;
 
             $(".s-shares" , row).text( getShares(symbol) );
             $(".s-equity" , row).text( formatMoney( getEquity(symbol) ) );
             $(".s-return" , row).text( formatMoney( returns , true) || formatMoney(0) );
+            $(".s-performance", row).html(formatMoney(stockPerformance, true, true));
+            $(".s-performance", row).removeClass("text-danger text-success");
+            $(".s-performance", row).addClass(getMoneyClass(stockPerformance));
+
 
             $(".s-return", row).removeClass("text-danger text-success");
             let classes = "";
@@ -220,7 +226,7 @@ $( () => {
         let html = `
             <div class=""> ${buyMode? "Purchasing" : "Selling" } at ${formatMoney(stock.current)} each</div>
             <div>Available balance: ${formatMoney(playerStats.balance)}</div>
-            <div>${buyMode? "" : "Shares available: "} </div>
+            <div>${buyMode? "" : `Shares available: ${getOwnedStock(stock.symbol).quantity}`} </div>
             <form class="pt-3">
                 <div class="form-group">
                     <label for="purchase_dollar_amt">Amount ($)</label>
@@ -253,7 +259,7 @@ $( () => {
 
     function renderPlayerOwnedStocks(){
         playerStats.stocks.forEach(stock => {
-            renderRow(stock.symbol);
+            renderRow(stock.symbol, stockData[stock.symbol]);
             if(selectedSymbol == stock.symbol){
                 renderSidePanel(selectedSymbol);
             }
@@ -324,6 +330,8 @@ $( () => {
 
     async function createRow(symbol, table){
         let stock = stockData[symbol];
+        console.log(stock, symbol);
+
         if(!stock)
             stock = await getStockDetails(symbol);
 
@@ -334,18 +342,38 @@ $( () => {
         //TODO copy an existing template instea of remaking it here
         $('tbody', table).append(`
             <tr class="stock-row">
-                <th> <div class="loader spinner-border text-info spinner-border-sm d-none"></div> </th>
+                <td> <div class="loader spinner-border text-info spinner-border-sm d-none"></div> </td>
                 <td> <span class="badge badge-success s-symbol"> ${symbol} </span></td>
                 <td class="s-name">${stock.name}</td>
                 <td class="s-performance ${getMoneyClass(stockPerformance)}">${formatMoney(stockPerformance, true, true)}</td>
-                <td class="s-shares">${playerStock.quantity}</td>
-                <td class="s-equity">${formatMoney( playerStock.quantity * stock.current )}</td>
-                <td class="s-return">${formatMoney( calculateReturn(playerStock, stock) ) || formatMoney(0)}</td>
+                <td class="s-shares">${playerStock?.quantity || 0}</td>
+                <td class="s-equity">${formatMoney( (playerStock?.quantity || 0)* stock.current )}</td>
+                <td class="s-return">${formatMoney( playerStock? calculateReturn(playerStock, stock) : 0 ) || formatMoney(0)}</td>
                 <td class="s-current">${stock.current}</td>
             </tr>      
         `);
     }
+    
+    function filter(term = ""){
+        term = term.toLowerCase().trim();
+        if(term.length < 1){
+            $(".stock-row").show();
+            return;
+        }
 
+        $(".stock-row").each( (i, el) => {
+            let symbolNode = $(el).find(".s-symbol");
+            let nameNode = $(el).find(".s-name");
+            
+            if(symbolNode.text().toLowerCase().trim().includes(term) ||
+                nameNode.text().toLowerCase().trim().includes(term)
+            ){
+                $(el).show();
+            } else{
+                $(el).hide();
+            }
+        });
+    }
 
     getPlayerStats(gameID).then( resp => {
         playerStats = resp;
@@ -353,6 +381,36 @@ $( () => {
         updateAllListings();
     });
 
+    $("#form-search").submit(async e => {
+        e.preventDefault();
+        let val = $("#input-search").val();
+        //$("#input-search").val("");
+
+        let resp = await findStock(val);
+
+        if(resp.error){
+            return;
+        }
+        
+        //TODO only show results in table
+        //TODO allow multiple results
+        let stock = resp.stocks[0];
+        stockData[stock.symbol] = stock; //update data
+
+
+        if(!getRow(stock.symbol)) createRow(stock.symbol)
+        console.log(resp);
+    });
+    
+    $("#input-search").on("input", evt => {
+        let term = evt.delegateTarget.value;
+        filter(term);
+    });
+
+    $("#input-search").on("blur", e => {
+    });
+
+    
     $("#btn-buy").click(tradeHandler);
     $("#btn-sell").click(tradeHandler);
     

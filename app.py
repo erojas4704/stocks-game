@@ -8,6 +8,7 @@ from forms import RegisterForm, LoginForm, NewGameForm
 from sqlalchemy.exc import IntegrityError
 from utils import format_money, get_money_class, get_ordinal
 from dotenv import load_dotenv
+import market
 import helpers
 import os
 
@@ -159,6 +160,7 @@ def register_page():
 
     return render_template("register.html", form=form)
 
+
 @app.route('/games/<game_id>/start', methods=['POST'])
 def start_game(game_id):
     """Starts a game. """
@@ -170,6 +172,56 @@ def start_game(game_id):
     game.start_game()
     flash("Game Start!")
     return redirect(f'/games/{game_id}')
+
+
+#TODO shorten
+@app.route('/api/stock/search', methods=['GET'])
+def do_search():
+    """Tries to find a stock in the local database, if not, we will search using the API."""
+    term = request.args.get('term')
+
+    if not term:
+        return jsonify({
+            'error': "Search term cannot be blank"
+            })
+
+    stock = Stock.query.get(term)
+
+    print("PANCHI BU")
+
+    if stock:
+        return jsonify({
+            'stocks': [stock.serialize()]
+        })
+
+    search = market.search(term)
+
+    if not search:
+        return jsonify({
+            'error': "Invalid stock found."
+            })
+
+    ##TODO return multiple
+    symbol = search['result'][0]['symbol']
+    stock = Stock.query.get(symbol)
+
+    if not stock:
+        stock = Stock(symbol=symbol)
+        db.session.add(stock)
+        db.session.commit()
+    
+    stock.update()
+    
+    #workaround. remove invalid stocks
+    if stock.current == 0:
+        db.session.delete(stock)
+        db.session.commit()
+        return None, 201
+
+    return jsonify({
+        'stocks': [stock.serialize()]
+    })
+
 
 @app.route('/api/games/<game_id>/info', methods=['GET'])
 def get_game_info(game_id):
@@ -245,7 +297,7 @@ def sell_stock(game_id):
     player.balance += cash_amt
 
     db.session.commit()
-    game.add_message(player, f"{player.user.displayname} sold {stock_amt} shares of %s{owned_stock.symbol}% for {format_money(cash_amt)} at {stock.current} each.")
+    game.add_message(player, f"{player.user.displayname} sold {stock_amt} shares of %s{owned_stock.symbol}% for {format_money(cash_amt)} at {format_money(stock.current)} each.")
     
     return jsonify({
         'response': f"You have successfully sold {stock_amt} shares of {owned_stock.symbol} for {format_money(cash_amt)}.",
@@ -317,3 +369,5 @@ def logout():
 def login_user(user):
     """ Saves the user to the session """
     session[CURR_USER_KEY] = user.id
+
+

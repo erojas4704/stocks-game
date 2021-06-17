@@ -6,7 +6,7 @@
         <ul class="list-group">
             {% if user %}
                 {% for game in user.games %}
-                <a href="/games/{{game.id}}" class="list-group-item">Game {{game.id}}</a>
+                <a href="/games/{{game.id}}" class="list-group-item">{{game.name}}</a>
                 {% endfor %}
             <a href="/newgame" class="list-group-item">New Game</a>
             {% endif %}
@@ -17,7 +17,7 @@
         <ul class="list-group"></ul>
             {% if public_games%}
             {% for game in public_games %}
-            <a href="/games/{{game.id}}" class="list-group-item">Game {{game.id}}</a>
+            <a href="/games/{{game.id}}" class="list-group-item">{{game.name}}</a>
             {% endfor %}
             {% endif %}
         </ul>

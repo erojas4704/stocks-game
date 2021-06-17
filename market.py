@@ -10,7 +10,19 @@ calls = 0
 #TODO find a way to delay calls that are ignored.
 
 
-r = requests.get('https://finnhub.io/api/v1/search?q=apple&token=c30l912ad3i9gms5vfs0')
+def search(term):
+    """Search for a symbol using a term"""
+    resp = requests.get(f'https://finnhub.io/api/v1/search?q={term}&token={API_KEY}')
+    json = resp.json()
+
+    #last ditch effort to catch other errors
+    if json.get("error"):
+        print("WE HAVE BEEN RATE LIMITED")
+        print(json["error"])
+        return False
+
+    return json
+
 
 def basic_details(symbol):
     """Using a stock's symbol, return a dict containing information for a stock"""
@@ -31,6 +43,7 @@ def basic_details(symbol):
     #last ditch effort to catch other errors
     if json.get("error"):
         print("WE HAVE BEEN RATE LIMITED")
+        print(json["error"])
         return False
 
     return json
@@ -55,6 +68,7 @@ def quote(symbol):
     #last ditch effort to catch other errors
     if json.get("error"):
         print("WE HAVE BEEN RATE LIMITED")
+        print(json["error"])
         return False
 
     

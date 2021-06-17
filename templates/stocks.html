@@ -12,75 +12,84 @@
     <input id="session-data" type="hidden" data-playerid="{{player.id}}" data-gameid="{{game.id}}">
 
     <div class="col-md-9">
-        <div id="plr-balance">Balance: {{format_money(player.balance)}}</div>
-            <div class="col">
-                <div class="h3">My Portfolio</div>
-                <table id="shares-owned" class="table table-dark table-hover table-striped">
-                    <thead>
-                        <th style="min-width: 0"></th>
-                        <th></th>
-                        <th>Name</th>
-                        <th>Performance</th>
-                        <th>Shares</th>
-                        <th>Equity</th>
-                        <th>Return</th>
-                        <th>Price</th>
-                    </thead>
-                    <tbody>
-                        {% for st in player.stocks %}
-                        {% if stocks[st.symbol] %}
-                        {% set stock = stocks[st.symbol] %}
-                        <tr class="stock-row">
-                            <td>
-                                <div class="loader spinner-border text-info spinner-border-sm"></div>
-                            </td>
-                            <td> <span class="badge badge-success s-symbol"> {{stock.symbol}} </span></td>
-                            <td class="s-name">{{stock.name}}</td>
-                            <td class="s-performance"></td>
-                            <td class="s-shares"></td>
-                            <td class="s-equity"></td>
-                            <td class="s-return"></td>
-                            <td class="s-current">{{format_money(stock.current)}}</td>
-                        </tr>
-                        {% endif %}
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="col">
+            <div class="row">
+                <div class="col h4" id="plr-balance">Balance: {{format_money(player.balance)}}</div>
+                <form id="form-search" class="col offset-md-4 form-inline">
+                    <label class="sr-only" for="input-search">Search</label>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" id="input-search" placeholder="Search">
+                        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
             </div>
+            <div class="h3">My Portfolio</div>
+            <table id="shares-owned" class="table table-dark table-hover table-striped">
+                <thead>
+                    <th style="min-width: 0"></th>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Performance</th>
+                    <th>Shares</th>
+                    <th>Equity</th>
+                    <th>Return</th>
+                    <th>Price</th>
+                </thead>
+                <tbody>
+                    {% for st in player.stocks %}
+                    {% if stocks[st.symbol] %}
+                    {% set stock = stocks[st.symbol] %}
+                    <tr class="stock-row">
+                        <td>
+                            <div class="loader spinner-border text-info spinner-border-sm"></div>
+                        </td>
+                        <td> <span class="badge badge-success s-symbol"> {{stock.symbol}} </span></td>
+                        <td class="s-name">{{stock.name}}</td>
+                        <td class="s-performance"></td>
+                        <td class="s-shares"></td>
+                        <td class="s-equity"></td>
+                        <td class="s-return"></td>
+                        <td class="s-current">{{format_money(stock.current)}}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         <div class="col">
             <div class="h3">Marketplace</div>
-                <table id="shares-market" class="table table-dark table-hover table-striped">
-                    <thead>
-                        <th style="min-width: 0"></th>
-                        <th></th>
-                        <th>Name</th>
-                        <th>Performance</th>
-                        <th>Shares</th>
-                        <th>Equity</th>
-                        <th>Return</th>
-                        <th>Price</th>
-                    </thead>
-                    <tbody>
-                        {% for stock in stocks %}
-                        <tr class="stock-row">
-                            <td>
-                                <div class="loader spinner-border text-info spinner-border-sm"></div>
-                            </td>
-                            <td> <span class="badge badge-success s-symbol"> {{stock.symbol}} </span></td>
-                            <td class="s-name">{{stock.name}}</td>
-                            <td class="s-performance"></td>
-                            <td class="s-shares"></td>
-                            <td class="s-equity"></td>
-                            <td class="s-return"></td>
-                            <!--<td class="s-open">{{format_money(stock.open)}}</td>
+            <table id="shares-market" class="table table-dark table-hover table-striped">
+                <thead>
+                    <th style="min-width: 0"></th>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Performance</th>
+                    <th>Shares</th>
+                    <th>Equity</th>
+                    <th>Return</th>
+                    <th>Price</th>
+                </thead>
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr class="stock-row">
+                        <td>
+                            <div class="loader spinner-border text-info spinner-border-sm"></div>
+                        </td>
+                        <td> <span class="badge badge-success s-symbol"> {{stock.symbol}} </span></td>
+                        <td class="s-name">{{stock.name}}</td>
+                        <td class="s-performance"></td>
+                        <td class="s-shares"></td>
+                        <td class="s-equity"></td>
+                        <td class="s-return"></td>
+                        <!--<td class="s-open">{{format_money(stock.open)}}</td>
                                         <td class="s-close">{{format_money(stock.close)}}</td>
                                         <td class="s-high">{{format_money(stock.high)}}</td>
                                         <td class="s-low">{{format_money(stock.low)}}</td> -->
-                            <td class="s-current">{{format_money(stock.current)}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        <td class="s-current">{{format_money(stock.current)}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -125,6 +134,7 @@
 {% endblock %}
 {% block scripts %}
 <!-- TODO. Using a transpiler, maybe remake these into modules, if there's time. -->
+<script src="/js/api.js"></script>
 <script src="/js/modal.js"></script>
 <script src="/js/utils.js"></script>
 <script src="/js/stocks.js"></script>

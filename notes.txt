@@ -4,3 +4,7 @@ https://stocknewsapi.com/?ref=apilist.fun
 To get news stories
 
 https://www.chartjs.org/
+
+have a whole dict of stocks saved in local storage for faster loading and responsiveness
+
+A link to company site
