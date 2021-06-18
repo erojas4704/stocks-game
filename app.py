@@ -8,8 +8,9 @@ from forms import RegisterForm, LoginForm, NewGameForm
 from sqlalchemy.exc import IntegrityError
 from utils import format_money, get_money_class, get_ordinal
 from dotenv import load_dotenv
-import market
+import threading
 import helpers
+import market
 import os
 
 load_dotenv()

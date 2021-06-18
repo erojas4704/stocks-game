@@ -32,3 +32,48 @@ body{
 .nav-game-mode{
     background-color: #114d5c !important;
 }
+
+.table-container {
+    border-radius: 11px !important;
+    border: 0px solid rgba(134, 134, 134,0) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 90%;
+    padding-top: 1%;
+    margin: 0px auto;
+    float: none;
+    height: 46rem;
+    overflow-y: auto;
+  }
+
+/*
+@media only screen and (min-width: 600px) {
+    .table-container{
+        height: 46rem;
+        overflow: auto;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .table-container{
+        height: 32rem;
+        overflow: auto;
+    }
+}
+*/
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+  
+::-webkit-scrollbar-track {
+background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+background: #888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+background: #555;
+}
