@@ -8,6 +8,7 @@ API_KEY = os.environ.get("API_KEY")
 calls = 0
 
 #TODO find a way to delay calls that are ignored.
+#TODO make calls asynchronous, if possible.
 
 
 def search(term):

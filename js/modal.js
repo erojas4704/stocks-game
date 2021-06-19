@@ -60,6 +60,10 @@ function openModal(title, body, ...options) {
     });
 }
 
+function closeModal(){
+    $("#modal_").click();
+}
+
 function alterModal(title, body){
     $("#modal_label").html(title);
     $(".modal-body").html(body);

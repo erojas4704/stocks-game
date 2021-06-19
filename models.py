@@ -6,6 +6,7 @@ from flask_bcrypt import Bcrypt
 from datetime import timedelta, datetime
 import market
 import os
+import utils
 
 STOCK_UPDATE_LIMIT_MINUTES = float(os.environ.get("STOCK_UPDATE_LIMIT_MINUTES"))
 
@@ -248,6 +249,16 @@ class Player(db.Model):
         "PlayerStock"
     )
 
+    final_value = db.Column(
+        db.Float,
+        default = 0
+    )
+
+    final_standing = db.Column(
+        db.Integer
+    )
+
+
     def get_total_worth(self):
         """Calculate the value of all owned stocks + balance"""
         port = self.get_portfolio_value()
@@ -366,6 +377,11 @@ class Game(db.Model):
         default = False
     )
 
+    winner_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade")
+    )
+
     duration = None
     active = db.Column(
         db.Boolean,
@@ -428,6 +444,14 @@ class Game(db.Model):
         self.active = True
 
         db.session.commit()
+    
+    def end_game(self):
+        """Ends the game and declares a winner"""
+        self.active = False
+        for player in self.players:
+            player.final_value = player.get_total_worth()
+
+        self.players.sort(key=utils.worth_sort)
 
     @classmethod
     def generate_game(cls):
@@ -470,10 +494,16 @@ class User(db.Model):
     """The model for the User"""
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
     email = db.Column(db.Text, nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
     displayname = db.Column(db.Text, nullable=False, unique=True)
+
+    wins = db.Column(db.Integer, default=0)
+    played = db.Column(db.Integer, default=0)
+    total_return = db.Column(db.Float, default=0)
+    trades = db.Column(db.Integer, default=0)
+    buys = db.Column(db.Integer, default=0)
+    sells = db.Column(db.Integer, default=0)
 
     avatar_url = db.Column(
         db.Text

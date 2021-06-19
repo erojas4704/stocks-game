@@ -30,3 +30,6 @@ def get_ordinal(place):
     }
 
     return f"{place}{ordinals[last_digit]}"
+
+def worth_sort(player):
+    return player.final_value

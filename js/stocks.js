@@ -101,7 +101,6 @@ $( () => {
             $(".s-current" , row).text( formatMoney(data.current) );
         }
 
-        console.log(stockData);
     }
 
     function getShares(symbol){
@@ -141,7 +140,7 @@ $( () => {
         $("#pp-symbol").text(symbol);
         
 
-        getStockDetails(symbol).then( data => {
+        getStockDetails(symbol, true).then( data => {
             stockData[symbol] = data;
             
             let stockPerformance = data.current - data.open;
@@ -163,10 +162,11 @@ $( () => {
 
     async function tradeHandler(evt){
         let stock = await getStockDetails(selectedSymbol);
+        stockData[selectedSymbol] = stock;
+
         let buying = $(evt.delegateTarget).data("purchase");
         let modalBody = generateBuyModal(stock, buying);
 
-        stockData[selectedSymbol] = stock;
 
         openModal(`${buying? "Purchasing": "Selling"} ${selectedSymbol}`,
             modalBody , {
@@ -286,8 +286,11 @@ $( () => {
         else  $("#sp-shares").text("0");
     }
 
-    function renderPlayerOwnedStocks(){
-        playerStats.stocks.forEach(stock => {
+    async function renderPlayerOwnedStocks(){
+        playerStats.stocks.forEach(async stock => {
+            if(!stockData[stock]){
+                stockData[stock] = await getStockDetails(stock.symbol);
+            }
             renderRow(stock.symbol, stockData[stock.symbol]);
             if(selectedSymbol == stock.symbol){
                 renderSidePanel(selectedSymbol);
@@ -406,10 +409,9 @@ $( () => {
             let symbolNode = $(el).find(".s-symbol");
             let nameNode = $(el).find(".s-name");
             let shares = Number( $(el).find(".s-shares").text() );
-
             let termFound = symbolNode.text().toLowerCase().trim().includes(term) || nameNode.text().toLowerCase().trim().includes(term);
+
             if(term.length < 1) termFound = true;
-            console.log(symbolNode.text(), "IS OWNED AND IS OWNED ONLY? ", ownedOnly ? shares > 0 : true);
             
             if( termFound && (ownedOnly ? shares > 0 : true)
             ){
@@ -419,13 +421,6 @@ $( () => {
             }
         });
     }
-
-    getPlayerStats(gameID).then( resp => {
-        playerStats = resp;
-        renderPlayerOwnedStocks(resp)
-        populatePlayerStocks();
-        updateAllListings();
-    });
 
     $("#form-search").submit(async e => {
         e.preventDefault();
@@ -445,6 +440,7 @@ $( () => {
         });
         
         unlockModal();
+        closeModal();
 
         if(resp?.error){
             return;
@@ -452,11 +448,10 @@ $( () => {
         
         //TODO only show results in table
         //TODO allow multiple results
-        let stock = resp.stocks[0];
-        stockData[stock.symbol] = stock; //update data
-
-
-        if(!getRow(stock.symbol)) createRow(stock.symbol)
+        resp.stocks.forEach(stock => {
+            stockData[stock.symbol] = stock;
+            if(!getRow(stock.symbol)) createRow(stock.symbol)
+        });
         console.log(resp);
     });
     
@@ -487,4 +482,11 @@ $( () => {
     });
 
     $("#form_purchase").hide();
+    
+    getPlayerStats(gameID).then( resp => {
+        playerStats = resp;
+        renderPlayerOwnedStocks(resp)
+        populatePlayerStocks();
+        updateAllListings();
+    });
 });
