@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block body %}
-<div class="row">
-    <div class="col-3">
+<div class="row m-0 m-sm-2">
+    <div class="col-12 col-sm-3 pb-3">
         <div class="h3">My Games</div>
         <ul class="list-group">
             {% if user %}
@@ -12,7 +12,7 @@
             {% endif %}
         </ul>
     </div>
-    <div class="col-3">
+    <div class="col-12 col-sm-3">
         <div class="h3">Public Games</div>
         <ul class="list-group"></ul>
             {% if public_games%}

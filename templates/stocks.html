@@ -11,11 +11,16 @@
 <div class="row justify-content-start h-100">
     <input id="session-data" type="hidden" data-playerid="{{player.id}}" data-gameid="{{game.id}}">
 
-    <div class="col-sm-9 order-12 order-sm-1">
+    <!-- Wrapper-->
+    <div class="col-sm-9 order-12 order-sm-1 p-0">
         <div class="col">
             <div class="row">
                 <div class="col h4" id="plr-balance">Balance: {{format_money(player.balance)}}</div>
-                <form id="form-search" class="col offset-md-4 form-inline">
+            </div>
+        </div>
+        <div class="col p-0">
+            <div class="row">
+                <form id="form-search" class="col form-inline">
                     <label class="sr-only" for="input-search">Search</label>
                     <div class="input-group mb-2">
                         <input type="text" class="form-control" id="input-search" placeholder="Search">
@@ -23,10 +28,8 @@
                     </div>
                 </form>
             </div>
-        </div>
-        <div class="col">
-            <div class="h3">Marketplace</div>
-            <div class="table-container">
+
+            <div class="table-container m-0">
                 <table id="shares-market" class="table table-dark table-hover table-striped m-0">
                     <thead>
                         <th style="min-width: 0"></th>
@@ -71,7 +74,6 @@
                 <div id="pp-current"></div>
             </div>
         </div>
-        <div class="h5 pb-4">Your position</div>
         <div class="row justify-content-center">
             <div class="col">
                 <div>Price: <span id="pp-price"></span></div>

@@ -156,15 +156,62 @@ class PlayerStock(db.Model):
         }
 
 
+class PlayerHistory(db.Model):
+    """Will keep track of fluctuating player balances throughout games."""
+    __tablename__ = 'playerhistory'
+
+    id = db.Column(
+        db.Integer,
+        unique=True,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    player_id = db.Column(
+        db.Integer,
+        db.ForeignKey('players.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
+    value = db.Column(
+        db.Float,
+        default=0
+    )
+
+    timestamp = db.Column(
+        db.DateTime,
+        default=datetime.now(),
+        nullable=False
+    )
+
+    @classmethod
+    def record(cls, player, amount):
+        hist = PlayerHistory(
+            player_id=player.id,
+            value=amount
+        )
+
+        db.session.add(hist)
+        db.session.commit()
+
+    def serialize(self):
+        """Make it JSON friendly"""
+        return {
+            'playerID': self.player_id,
+            'balance': self.value,
+            'timestamp': self.timestamp
+        }
+
+
 class Player(db.Model):
-    """The model for the users in games. 
+    """The model for the users in games.
     This will record all game statistics for that user and game, as well."""
     __tablename__ = 'players'
 
     id = db.Column(
         db.Integer,
-        unique = True,
-        primary_key = True,
+        unique=True,
+        primary_key=True,
         autoincrement=True
     )
 
@@ -198,6 +245,10 @@ class Player(db.Model):
     def get_total_worth(self):
         """Calculate the value of all owned stocks + balance"""
         port = self.get_portfolio_value()
+
+        total = port + self.balance
+        #log the value to history
+        PlayerHistory.record(self, total)
 
         return port + self.balance
 
@@ -399,6 +450,14 @@ class StockHistory(db.Model):
         default = datetime.now(),
         nullable = False
     )
+    
+    def serialize(self):
+        """Make it JSON friendly"""
+        return {
+            'playerID': self.player_id,
+            'balance': self.balance,
+            'timestamp': self.timestamp
+        }
 
 
 class User(db.Model):
