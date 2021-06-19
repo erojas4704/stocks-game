@@ -36,6 +36,7 @@ $( () => {
         
         getStockDetails(symbol).then(
             data => {
+                stockData[symbol] = data;
                 clearSpinners(row);
                 renderRow(symbol, data);
                 $(".loader", row).hide();
@@ -141,7 +142,7 @@ $( () => {
         
 
         getStockDetails(symbol).then( data => {
-
+            stockData[symbol] = data;
             
             let stockPerformance = data.current - data.open;
             $("#pp-performance").html(formatMoney(stockPerformance, true, true));
@@ -164,6 +165,8 @@ $( () => {
         let stock = await getStockDetails(selectedSymbol);
         let buying = $(evt.delegateTarget).data("purchase");
         let modalBody = generateBuyModal(stock, buying);
+
+        stockData[selectedSymbol] = stock;
 
         openModal(`${buying? "Purchasing": "Selling"} ${selectedSymbol}`,
             modalBody , {
@@ -296,6 +299,7 @@ $( () => {
     /**Get stock details from our server API.
      * If we are rate limited, we will only receive old data.
      */
+    /*
     async function getStockDetails(symbol){
         //TODO error handling
         let resp = await axios.get('/api/stock',{
@@ -315,7 +319,7 @@ $( () => {
         renderPlayerStats(resp.data);
         return resp.data;
     }
-
+    */
 
     function updateAllListings(){
         $(".s-symbol").each( (i, node) => {
@@ -335,6 +339,7 @@ $( () => {
                 let st = stockData[symbol];
                 if(!stock){
                     getStockDetails(symbol).then( data => {
+                        stockData[symbol] = data;
                         renderRow(stock.symbol, data);
                     });
                 }else{
@@ -355,8 +360,10 @@ $( () => {
         let stock = stockData[symbol];
         console.log(stock, symbol);
 
-        if(!stock)
+        if(!stock){
             stock = await getStockDetails(symbol);
+            stockData[symbol] = stock;
+        }
 
         let playerStock = getOwnedStock(symbol);
 
@@ -415,6 +422,7 @@ $( () => {
 
     getPlayerStats(gameID).then( resp => {
         playerStats = resp;
+        renderPlayerOwnedStocks(resp)
         populatePlayerStocks();
         updateAllListings();
     });

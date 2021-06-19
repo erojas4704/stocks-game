@@ -43,7 +43,6 @@ def basic_details(symbol):
     #last ditch effort to catch other errors
     if json.get("error"):
         print("There's been an error")
-        print(json["error"])
         return json
 
     return json
@@ -60,7 +59,7 @@ def quote(symbol):
     
     calls += 1
 
-    print(f"RIGHT NOW WE ARE AT {calls} CALLS")
+    print(f"[MARKET]: Currently we are at {calls} calls.")
 
     resp = requests.get(f'https://finnhub.io/api/v1/quote?symbol={symbol}&token={API_KEY}')
 
@@ -68,7 +67,6 @@ def quote(symbol):
     #last ditch effort to catch other errors
     if json.get("error"):
         print("There's been an error")
-        print(json["error"])
         return json
 
     

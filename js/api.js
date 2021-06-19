@@ -1,15 +1,29 @@
+if(!sessionStorage.getItem('stockData'))
+    sessionStorage.setItem('stockData', {});
 
 
 /**Get stock details from our server API.
  * If we are rate limited, we will only receive old data.
  */
-    async function getStockDetails(symbol){
+    async function getStockDetails(symbol, forceRemote = false){
     //TODO error handling
+    //We'll cache a version of the stock in localstorage
+    if(sessionStorage.stockData[symbol]){
+        let = data = sessionStorage.stockData[symbol];
+
+        //Return cached data if it's less than 2 minutes old
+        if( (Date.now - data.updated)/60000 < 2 )
+            return sessionStorage.stockData[symbol];
+    }
+
     let resp = await axios.get('/api/stock',{
         params:{
             symbol
         }
     });
+
+    sessionStorage.stockData[symbol] = resp;
+    sessionStorage.stockData[symbol].updated = Date.now();
 
     return resp.data;
 }

@@ -210,24 +210,32 @@ def do_search():
             }), 405
         
     ##TODO return multiple
-    symbol = search['result'][0]['symbol']
-    stock = Stock.query.get(symbol)
+    new_stocks = []
 
-    if not stock:
-        stock = Stock(symbol=symbol)
-        db.session.add(stock)
-        db.session.commit()
-    
-    stock.update()
-    
-    #workaround. remove invalid stocks
-    if stock.current == 0:
-        db.session.delete(stock)
-        db.session.commit()
-        return None, 201
+    for result in search['result']:
+        symbol = result['symbol']
+        if result['type'] != 'Common Stock':
+            continue
+
+        stock = Stock.query.get(symbol)
+        stock_invalid = False
+        if not stock:
+            stock = Stock(symbol=symbol)
+            stock.update()
+            #workaround. remove invalid stocks
+            if stock.current is None or stock.current < .05:
+                stock_invalid = True
+
+            if not stock_invalid:
+                db.session.add(stock)
+                new_stocks.append(stock)
+        else:
+            new_stocks.append(stock)
+
+    db.session.commit()
 
     return jsonify({
-        'stocks': [stock.serialize()]
+        'stocks': [stock.serialize() for stock in new_stocks]
     })
 
 

@@ -93,6 +93,11 @@ class Stock(db.Model):
             
         resp = market.quote(self.symbol.upper())
 
+        if resp.get('error'):
+            print(resp['error'])
+            print(f'[CRITICAL]: Could not get any information for {self.symbol}.')
+            return
+
         if self.name is None:
             basic = market.basic_details(self.symbol.upper())
 
@@ -100,6 +105,7 @@ class Stock(db.Model):
                 self.name = basic["name"]
 
         if resp:
+            print(f'{resp} {self.symbol}')
             self.current = resp['c']
             self.open = resp['o']
             self.close = resp['pc']
