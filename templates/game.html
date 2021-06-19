@@ -18,7 +18,7 @@ data-gameid="{{game.id}}">
             <!-- If I'm the host and there's more than 2 players, offer the option to start the game.-->
             {% if game.host_id == user.id %}
             <form class="form-inline" method="POST" action="/games/{{game.id}}/start">
-                <button type="submit" class="btn btn-info" {% if game.players|length < 2%}disabled{%endif%}>Start Game</button>
+                <button id="btn-start" type="submit" class="btn btn-info" {% if game.players|length < 2%}disabled{%endif%}>Start Game</button>
             </form>
             {% endif %}
             <!-- If I'm not part of this game and I'm logged in, offer the option to join the game.-->
@@ -29,10 +29,10 @@ data-gameid="{{game.id}}">
             {% endif %}
         </div>
 
-        <div class="row pb-2">
+        <div id="game-start-status" class="row pb-2">
             The game hasn't started yet.
         </div>
-        <div class="row pb-2">
+        <div class="row pb-2 players-needed">
         {% if game.host_id == user.id and game.players|length < 2 %}
             You need at least one more person to start the game.
         {% endif %}

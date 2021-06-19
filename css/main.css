@@ -38,7 +38,6 @@ body{
     border: 0px solid rgba(134, 134, 134,0) !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 90%;
     padding-top: 1%;
     margin: 0px auto;
     float: none;
@@ -46,21 +45,22 @@ body{
     overflow-y: auto;
   }
 
-/*
-@media only screen and (min-width: 600px) {
-    .table-container{
-        height: 46rem;
-        overflow: auto;
-    }
+.jumbotron{
+    background-color: #2c3e50 !important;
 }
 
-@media only screen and (max-width: 600px) {
-    .table-container{
-        height: 32rem;
-        overflow: auto;
-    }
+a.card{
+    text-decoration: inherit;
+    color: inherit;
 }
-*/
+
+a.card:hover{
+    background-color: #547ba1 !important;
+}
+
+.card{
+    background-color: #2c3e50 !important;
+}
 
 ::-webkit-scrollbar {
     width: 10px;

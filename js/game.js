@@ -106,9 +106,18 @@ $(() => {
 
     async function getAndRenderStateFromRemote(){
         let resp = await getGameInfo(gameID);
-        console.log(resp);
-
+        if(!game.active && resp.active){
+            $("#game-start-status").hide();
+            addMessage('The game has started!');
+        }
         game = resp;
+
+        if(!game.active){
+            if(game.players.length > 1){
+                $(".players-needed").hide();
+                $("#btn-start").prop("disabled", false);
+            }
+        }
 
         await getAllOwnedStocks(game.players);
         renderAllPlayers(game.players);
@@ -159,6 +168,10 @@ $(() => {
                 <div>${formatMessageString( message.message )}</div>
             `)
         });
+    }
+
+    function addMessage(message){
+        $("messages").append(`<div>${message}</div>`);
     }
 
     function secondsToEnglish(seconds){

@@ -17,9 +17,9 @@ def search(term):
 
     #last ditch effort to catch other errors
     if json.get("error"):
-        print("WE HAVE BEEN RATE LIMITED")
+        print("There's been an error")
         print(json["error"])
-        return False
+        return json
 
     return json
 
@@ -42,9 +42,9 @@ def basic_details(symbol):
     json = resp.json()
     #last ditch effort to catch other errors
     if json.get("error"):
-        print("WE HAVE BEEN RATE LIMITED")
+        print("There's been an error")
         print(json["error"])
-        return False
+        return json
 
     return json
 
@@ -67,9 +67,9 @@ def quote(symbol):
     json = resp.json()
     #last ditch effort to catch other errors
     if json.get("error"):
-        print("WE HAVE BEEN RATE LIMITED")
+        print("There's been an error")
         print(json["error"])
-        return False
+        return json
 
     
 

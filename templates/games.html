@@ -1,17 +1,55 @@
 {% extends 'base.html' %}
 {% block body %}
-<div class="row m-0 m-sm-2">
-    <div class="col-12 col-sm-3 pb-3">
-        <div class="h3">My Games</div>
-        <ul class="list-group">
-            {% if user %}
-                {% for game in user.games %}
-                <a href="/games/{{game.id}}" class="list-group-item">{{game.name}}</a>
-                {% endfor %}
-            <a href="/newgame" class="list-group-item">New Game</a>
-            {% endif %}
-        </ul>
+<div class="h3 pb-2">My Games</div>
+{% if user %}
+<a href="/newgame" class="btn btn-outline-success mb-3">New Game</a>
+
+<div class="row justify-content-start">
+    {% for game in user.games %}
+    {% set player_return = game.get_player(user).get_return() %}
+    <div class="col-xl-2 col-md-3 col-sm-4 d-sm-flex  flex-sm-grow-1">
+        <a href="/games/{{game.id}}" class="card mb-4 box-shadow">
+            <div class="card-body">
+                <div class="h5 card-title">{{ game.name if game.name|length > 1 else 'Game ' + game.id|string}}</div>
+                <hr>
+                <div class="card-text ">
+                    <div>Players: {{game.players|length}}</div>
+                    <div>Total Return: <span class="{{ get_money_class(player_return) }}"> {{ format_money(
+                            player_return ) }} </span></div>
+                </div>
+                {% if not game.active %}
+                <small class="text-muted">Not started</small>
+                {% endif %}
+            </div>
+        </a>
     </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="h3 pb-2">Public Games</div>
+<div class="row justify-content-start">
+    {% for game in public_games %}
+    {% if not game.get_player(user) and not game.password %}
+    <div class="col-xl-2 col-md-3 col-sm-4 d-sm-flex  flex-sm-grow-1">
+        <a href="/games/{{game.id}}" class="card mb-4 box-shadow">
+            <div class="card-body">
+                <div class="h5 card-title">{{ game.name if game.name|length > 1 else 'Game ' + game.id|string}}</div>
+                <hr>
+                <div class="card-text ">
+                    <div>Players: {{game.players|length}}</div>
+                </div>
+                {% if not game.active %}
+                <small class="text-muted">Not started</small>
+                {% endif %}
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!--
     <div class="col-12 col-sm-3">
         <div class="h3">Public Games</div>
         <ul class="list-group"></ul>
@@ -22,5 +60,5 @@
             {% endif %}
         </ul>
     </div>
-</div>
+-->
 {% endblock %}

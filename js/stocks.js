@@ -32,14 +32,29 @@ $( () => {
     function updateListing(symbol){
         let row = getRow(symbol);
 
-        $(".loader", row).show();
+        populateRowWithSpinners(row);
+        
         getStockDetails(symbol).then(
             data => {
+                clearSpinners(row);
                 renderRow(symbol, data);
-                //renderRow(symbol, data, playerTable);
                 $(".loader", row).hide();
             }
         );
+    }
+
+    function populateRowWithSpinners(row){
+        //TODO doesn't work $("td:not('td.s-symbol')", row).html(`<div class="loader spinner-border text-info spinner-border-sm"></div>`);
+
+       $(".s-name", row).html(`<div class="loader spinner-border text-info spinner-border-sm"></div>`);
+       $(".s-performance", row).html(`<div class="loader spinner-border text-info spinner-border-sm"></div>`);
+       $(".s-shares", row).html(`<div class="loader spinner-border text-info spinner-border-sm"></div>`);
+       $(".s-equity", row).html(`<div class="loader spinner-border text-info spinner-border-sm"></div>`);
+       $(".s-return", row).html(`<div class="loader spinner-border text-info spinner-border-sm"></div>`);
+    }
+
+    function clearSpinners(row){
+        $(".loader", row).remove();
     }
 
     function renderRow(symbol, data, table = marketTable){
@@ -56,6 +71,7 @@ $( () => {
 
             let stockPerformance = data.current - data.open;
 
+            $(".s-name" , row).text( data.name );
             $(".s-shares" , row).text( getShares(symbol) );
             $(".s-equity" , row).text( formatMoney( getEquity(symbol) ) );
             $(".s-return" , row).text( formatMoney( returns , true) || formatMoney(0) );
@@ -122,8 +138,16 @@ $( () => {
         renderSidePanel(selectedSymbol);
 
         $("#pp-symbol").text(symbol);
+        
 
         getStockDetails(symbol).then( data => {
+
+            
+            let stockPerformance = data.current - data.open;
+            $("#pp-performance").html(formatMoney(stockPerformance, true, true));
+            $("#pp-performance").removeClass("text-danger text-success");
+            $("#pp-performance").addClass(getMoneyClass(stockPerformance));
+
             $("#pp-name").text(name);
             $("#pp-current").text( formatMoney(data.current));
             $("#pp-price").text( formatMoney(data.current) );
@@ -132,6 +156,8 @@ $( () => {
             $("#pp-high").text( formatMoney(data.high) );
             $("#pp-low").text( formatMoney(data.low) );
         });
+        
+        $("#form_purchase").show();
     }
 
     async function tradeHandler(evt){
@@ -289,9 +315,6 @@ $( () => {
         renderPlayerStats(resp.data);
         return resp.data;
     }
-    
-    //Hide all spinners
-    $(".loader").hide();
 
 
     function updateAllListings(){
@@ -342,7 +365,6 @@ $( () => {
         //TODO copy an existing template instea of remaking it here
         $('tbody', table).append(`
             <tr class="stock-row">
-                <td> <div class="loader spinner-border text-info spinner-border-sm d-none"></div> </td>
                 <td> <span class="badge badge-success s-symbol"> ${symbol} </span></td>
                 <td class="s-name">${stock.name}</td>
                 <td class="s-performance ${getMoneyClass(stockPerformance)}">${formatMoney(stockPerformance, true, true)}</td>
@@ -353,20 +375,36 @@ $( () => {
             </tr>      
         `);
     }
-    
-    function filter(term = ""){
-        term = term.toLowerCase().trim();
-        if(term.length < 1){
-            $(".stock-row").show();
-            return;
+
+    function filterOwnedStocks(owned){
+        if(owned){
+            $(".stock-row").each( (i, el) => {
+                let quantity = $(el).find(".s-shares").text();
+                if(Number(quantity) > 0){
+                    $(el).show();
+                } else{
+                    $(el).hide();
+                }
+            });
         }
+        else{
+            $(".stock-row").show();
+        }
+    }
+    
+    function filter(term = "", ownedOnly=false){
+        term = term.toLowerCase().trim();
 
         $(".stock-row").each( (i, el) => {
             let symbolNode = $(el).find(".s-symbol");
             let nameNode = $(el).find(".s-name");
+            let shares = Number( $(el).find(".s-shares").text() );
+
+            let termFound = symbolNode.text().toLowerCase().trim().includes(term) || nameNode.text().toLowerCase().trim().includes(term);
+            if(term.length < 1) termFound = true;
+            console.log(symbolNode.text(), "IS OWNED AND IS OWNED ONLY? ", ownedOnly ? shares > 0 : true);
             
-            if(symbolNode.text().toLowerCase().trim().includes(term) ||
-                nameNode.text().toLowerCase().trim().includes(term)
+            if( termFound && (ownedOnly ? shares > 0 : true)
             ){
                 $(el).show();
             } else{
@@ -386,9 +424,21 @@ $( () => {
         let val = $("#input-search").val();
         //$("#input-search").val("");
 
-        let resp = await findStock(val);
+        openModal();
+        alterModal("Searching...",`
+        <div class="row justify-content-center">
+            <div class="loader spinner-border text-info spinner-border-lg"></div>
+        </div>`)
+        lockModal();
 
-        if(resp.error){
+        let resp = await findStock(val)
+        .catch( err => {
+            openModal("Error", err);
+        });
+        
+        unlockModal();
+
+        if(resp?.error){
             return;
         }
         
@@ -404,7 +454,9 @@ $( () => {
     
     $("#input-search").on("input", evt => {
         let term = evt.delegateTarget.value;
-        filter(term);
+        let owned = $("#own-filter input:checked").val() == "true";
+
+        filter(term, owned);
     });
 
     $("#input-search").on("blur", e => {
@@ -418,4 +470,13 @@ $( () => {
         let delegate = $(e.target).parent("tr");
         populatePurchaseForm(delegate)
     });
+
+    $("#own-filter input").change( e => {
+        let checked = $("#own-filter input:checked");
+        let onlyOwned = checked.val() == "true";
+
+        filter($("#input-search").val(), onlyOwned);
+    });
+
+    $("#form_purchase").hide();
 });

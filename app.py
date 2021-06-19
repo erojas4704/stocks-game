@@ -145,6 +145,10 @@ def view_stocks(game_id):
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     """ User registration form """
+
+    if g.user:
+        return redirect('/games')
+
     form = RegisterForm()
     if form.validate_on_submit():
         try:
@@ -188,8 +192,6 @@ def do_search():
 
     stock = Stock.query.get(term)
 
-    print("PANCHI BU")
-
     if stock:
         return jsonify({
             'stocks': [stock.serialize()]
@@ -200,8 +202,13 @@ def do_search():
     if not search:
         return jsonify({
             'error': "Invalid stock found."
-            })
+            }), 405
 
+    if search.get('error'):
+        return jsonify({
+            'error': search['error']
+            }), 405
+        
     ##TODO return multiple
     symbol = search['result'][0]['symbol']
     stock = Stock.query.get(symbol)

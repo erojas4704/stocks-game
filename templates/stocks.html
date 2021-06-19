@@ -5,53 +5,63 @@
     <a class="nav-link" href="/games/{{game.id}}">Session<span class="sr-only">(current)</span></a>
 </li>
 {% endblock %}
+{% block links %}
+<link rel="stylesheet" type="text/css" href="/css/stocks.css">
+{% endblock %}
 
 {% block body %}
 
-<div class="row justify-content-start h-100">
+<div class="row ">
     <input id="session-data" type="hidden" data-playerid="{{player.id}}" data-gameid="{{game.id}}">
 
     <!-- Wrapper-->
-    <div class="col-sm-9 order-12 order-sm-1 p-0">
-        <div class="col">
-            <div class="row">
-                <div class="col h4" id="plr-balance">Balance: {{format_money(player.balance)}}</div>
-            </div>
-        </div>
+    <div class="col-md-9 order-12 order-md-1 p-0">
+        <div class="col h4" id="plr-balance">Balance: {{format_money(player.balance)}}</div>
         <div class="col p-0">
-            <div class="row">
-                <form id="form-search" class="col form-inline">
-                    <label class="sr-only" for="input-search">Search</label>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" id="input-search" placeholder="Search">
-                        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+            <!-- Stock navigation-->
+                <form id="form-search" class="form-inline">
+                    <div id="own-filter" class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
+                        <label class="btn btn-info rounded-top active">
+                            <input type="radio" name="options" id="rb-marketplace" autocomplete="off" value="false" checked> Marketplace
+                        </label>
+                        <label class="btn btn-info rounded-top ">
+                            <input type="radio" name="options" id="rb-portfolio" value="true" autocomplete="off"> Portfolio
+                        </label>
                     </div>
-                </form>
-            </div>
 
-            <div class="table-container m-0">
+                    <label class="sr-only" for="input-search">Search</label>
+                    <div class="input-group mr-3">
+                        <input type="text" class="form-control" id="input-search" placeholder="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+
+                </form>
+
+
+            <!-- Table-->
+            <div class="table-container ">
                 <table id="shares-market" class="table table-dark table-hover table-striped m-0">
                     <thead>
-                        <th style="min-width: 0"></th>
+                        <!--<th style="min-width: 0"></th>-->
                         <th></th>
-                        <th>Name</th>
-                        <th>Performance</th>
+                        <th class="d-none d-lg-table-cell">Name</th>
+                        <th class="d-none d-md-table-cell">Performance</th>
                         <th>Shares</th>
-                        <th>Equity</th>
+                        <th class=" d-none d-lg-table-cell">Equity</th>
                         <th>Return</th>
                         <th>Price</th>
                     </thead>
                     <tbody>
                         {% for stock in stocks %}
                         <tr class="stock-row">
-                            <td>
-                                <div class="loader spinner-border text-info spinner-border-sm"></div>
-                            </td>
+                            <!--<td><div class="loader spinner-border text-info spinner-border-md"></div></td>-->
                             <td> <span class="badge badge-success s-symbol"> {{stock.symbol}} </span></td>
-                            <td class="s-name">{{stock.name}}</td>
-                            <td class="s-performance"></td>
+                            <td class="s-name d-none d-lg-table-cell">{{stock.name}}</td>
+                            <td class="s-performance d-none d-md-table-cell"></td>
                             <td class="s-shares"></td>
-                            <td class="s-equity"></td>
+                            <td class="s-equity d-none d-lg-table-cell"></td>
                             <td class="s-return"></td>
                             <!--<td class="s-open">{{format_money(stock.open)}}</td>
                                             <td class="s-close">{{format_money(stock.close)}}</td>
@@ -66,38 +76,41 @@
         </div>
     </div>
 
-    <div class="col pt-3 mr-4 order-1 order-sm-12" id="form_purchase">
+    <!-- Side panel-->
+    <div class="col ml-md-3 pt-md-3 order-1 order-md-12 pb-3" id="form_purchase">
+
         <div class="row border-bottom mb-4 pb-2">
-            <div class="display-4 col px-0" id="pp-symbol"></div>
-            <div class="col pt-2">
-                <div id="pp-name"></div>
-                <div id="pp-current"></div>
+            <div class="display-4 px-0 px-2 pr-4" id="pp-symbol"></div>
+            <div class="pt-2 col">
+                <div id="pp-name" class=""></div>
+                <div id="pp-current" class="mr-3"></div>
+                <div id="pp-performance" class=""></div>
             </div>
         </div>
+
         <div class="row justify-content-center">
-            <div class="col">
-                <div>Price: <span id="pp-price"></span></div>
-                <div>Open: <span id="pp-open"></span></div>
-                <div>Last Close: <span id="pp-close"></span></div>
-                <div>High: <span id="pp-high"></span></div>
-                <div>Low: <span id="pp-low"></span></div>
+            <div class="col-6">
+                <div class="text-nowrap">Price: <span id="pp-price"></span></div>
+                <div class="text-nowrap">Open: <span id="pp-open"></span></div>
+                <div class="text-nowrap">Last Close: <span id="pp-close"></span></div>
+                <div class="text-nowrap">High: <span id="pp-high"></span></div>
+                <div class="text-nowrap">Low: <span id="pp-low"></span></div>
             </div>
             <div class="col-6">
-
                 <div class="row justify-content-center">You own</div>
                 <div class="row justify-content-center num-bold" id="sp-shares">0</div>
                 <div class="row justify-content-center">shares</div>
             </div>
 
-            <div>
-                <div class="row justify-content-center pt-4">
+            <div class="row justify-content-center pt-4">
+                <div class="btn-group">
                     <button class="btn btn-outline-success rounded-left" data-purchase="true" id="btn-buy">Buy</button>
                     <button class="btn btn-outline-primary rounded-right" data-purchase="false"
                         id="btn-sell">Sell</button>
                 </div>
-                <div id="company-desc" class="row justify-content-center pt-4">
-                    Maybe a tiny blurb about the company.
-                </div>
+            </div>
+            <div id="company-desc" class="row justify-content-center pt-4">
+                <!-- Maybe a paragraph describing the company -->
             </div>
         </div>
     </div>
