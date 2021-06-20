@@ -215,6 +215,5 @@ $(() => {
         return `${days > 0 ? `${days} days` : ''}  ${hours > 0 ? `${hours % 24} hours` : ''}  ${minutes > 0 ? `${minutes % 60} minutes` : ''}  ${seconds % 60} seconds`
     }
 
-    createChart();
 });
 
