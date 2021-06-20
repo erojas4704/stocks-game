@@ -200,6 +200,11 @@ class PlayerHistory(db.Model):
             value=amount
         )
 
+        last = PlayerHistory.query.filter(PlayerHistory.player_id == player.id).order_by(PlayerHistory.timestamp.desc()).limit(1)[0]
+        
+        if last.timestamp == hist.timestamp:
+            return False
+
         #TODO don't save identical histories
         db.session.add(hist)
         db.session.commit()
@@ -270,6 +275,7 @@ class Player(db.Model):
         total = port + self.balance
         #log the value to history
         PlayerHistory.record(self, total)
+
 
         return port + self.balance
 
