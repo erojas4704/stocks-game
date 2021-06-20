@@ -6,15 +6,21 @@ from models import User, connect_db, db, Game, Player, Stock, PlayerStock, Messa
 from flask_sqlalchemy import SQLAlchemy
 from forms import RegisterForm, LoginForm, NewGameForm
 from sqlalchemy.exc import IntegrityError
-from utils import format_money, get_money_class, get_ordinal
+from utils import format_money, get_money_class, get_ordinal, seconds_to_english
 from dotenv import load_dotenv
 import helpers
 import market
 import game
 import os
+import logging
+
+logging.basicConfig()
+logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 load_dotenv()
 app = Flask(__name__)
+
 
 app.config['TESTING'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_URL')
@@ -28,6 +34,7 @@ connect_db(app)
 app.jinja_env.globals['format_money'] = format_money
 app.jinja_env.globals['get_money_class'] = get_money_class
 app.jinja_env.globals['get_ordinal'] = get_ordinal
+app.jinja_env.globals['seconds_to_english'] = seconds_to_english
 
 @app.before_request
 def add_user_to_g():
@@ -126,7 +133,7 @@ def view_game(game_id):
 def view_stocks(game_id):
     """Stock listings for a game."""
     game = Game.query.get(game_id)
-    stocks = Stock.query.order_by(Stock.symbol).all()
+    stocks = Stock.query.order_by(Stock.symbol).limit(25)
 
     #for stock in stocks:
     #    stock.update()
@@ -174,9 +181,12 @@ def start_game(game_id):
         flash("You are not the host of this game!")
         return redirect(f'/games/{game_id}')
     
-    game.start_game()
-    flash("Game Start!")
-    return redirect(f'/games/{game_id}')
+    if game.start_game():
+        flash("Game Start!")
+        return redirect(f'/games/{game_id}')
+    else:
+        flash("The game has already ended. How are you even seeing this?")
+        return redirect('/games')
 
 
 #TODO shorten
@@ -251,7 +261,6 @@ def get_game_messages(game_id):
     """Given a game ID, get the game messages"""
     messages = Message.query.filter(Message.game_id == game_id).order_by(Message.timestamp.desc()).limit(8)
     list_msg = [msg.serialize() for msg in messages]
-    print(messages)
     return jsonify(list_msg), 201
 
 
@@ -311,6 +320,8 @@ def sell_stock(game_id):
 
     owned_stock.money_spent -= cash_amt
     player.balance += cash_amt
+    g.user.sells += 1
+    g.user.trades += 1
 
     db.session.commit()
     game.add_message(player, f"{player.user.displayname} sold {stock_amt} shares of %s{owned_stock.symbol}% for {format_money(cash_amt)} at {format_money(stock.current)} each.")
@@ -365,6 +376,8 @@ def buy_stock(game_id):
     owned_stock.quantity += stock_amt
     owned_stock.money_spent += cash_amt
     player.balance -= cash_amt
+    g.user.buys += 1
+    g.user.trades += 1
 
     db.session.commit()
     game.add_message(player, f'{player.user.displayname} purchased {stock_amt} shares of %s{owned_stock.symbol}% for {format_money(cash_amt)} at {stock.current} each.')
@@ -385,5 +398,3 @@ def logout():
 def login_user(user):
     """ Saves the user to the session """
     session[CURR_USER_KEY] = user.id
-
-

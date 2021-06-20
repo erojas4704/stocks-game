@@ -4,9 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_bcrypt import Bcrypt
 from datetime import timedelta, datetime
+from operator import attrgetter
 import market
-import os
 import utils
+import os
 
 STOCK_UPDATE_LIMIT_MINUTES = float(os.environ.get("STOCK_UPDATE_LIMIT_MINUTES"))
 
@@ -238,7 +239,7 @@ class Player(db.Model):
 
     balance = db.Column(
         db.Float,
-        default = 0
+        default=0
     )
 
     color = db.Column(
@@ -251,13 +252,12 @@ class Player(db.Model):
 
     final_value = db.Column(
         db.Float,
-        default = 0
+        default=0
     )
 
     final_standing = db.Column(
         db.Integer
     )
-
 
     def get_total_worth(self):
         """Calculate the value of all owned stocks + balance"""
@@ -268,7 +268,6 @@ class Player(db.Model):
         PlayerHistory.record(self, total)
 
         return port + self.balance
-
 
     def get_portfolio_value(self):
         """Calculate the value of all owned stocks"""
@@ -288,8 +287,6 @@ class Player(db.Model):
         
         return value - spent
 
-
-
     def serialize(self):
         """Return a dictionary describing this object."""
         return {
@@ -307,6 +304,7 @@ class Player(db.Model):
     def __repr__(self):
         return f"<{self.user.displayname}: {self.balance}>"
 
+
 class Message(db.Model):
     """Message for user activity or chat"""
     __tablename__ = 'messages'
@@ -322,15 +320,15 @@ class Message(db.Model):
 
     message = db.Column(
         db.Text,
-        nullable = False
+        nullable=False
     )
 
     game_id = db.Column(
         db.Integer,
-        db.ForeignKey('games.id')
+        db.ForeignKey('games.id', ondelete="cascade")
     )
 
-    timestamp = db.Column(db.DateTime, default = datetime.now())
+    timestamp = db.Column(db.DateTime, default=datetime.now())
 
     def serialize(self):
         """JSON Friendly Dict"""
@@ -338,6 +336,7 @@ class Message(db.Model):
             'timestamp': self.timestamp,
             'message': self.message
         }
+
 
 class Game(db.Model):
     """The model for the Game"""
@@ -357,19 +356,20 @@ class Game(db.Model):
     hours = db.Column(db.Float, nullable=False)
     days = db.Column(db.Float, nullable=False)
     
-
     host_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id')
     )
 
     players = relationship(
-        "Player"
+        "Player",
+        cascade="all, delete"
     )
 
     users = relationship(
         "User",
-        secondary="players"
+        secondary="players",
+        cascade="all, delete"
     )
 
     allow_off_market_trades = db.Column(
@@ -391,11 +391,15 @@ class Game(db.Model):
 
     def serialize(self):
         """JSON Friendly Dict"""
+        players = self.players
+        players.sort(key=utils.total_sort, reverse=True)
+
         return {
             "active": self.active,
-            "players": [player.serialize() for player in self.players],
-            "start": self.start,
-            "end": self.end,
+            "players": [player.serialize() for player in players],
+            "start": self.start.isoformat() if self.start else None,
+            "winner_id": self.winner_id,
+            "end": self.end.isoformat() if self.end else None,
             "id": self.id
         }
 
@@ -412,8 +416,8 @@ class Game(db.Model):
         return player
 
     def add_message(self, player, message):
-        message = Message(player_id = player.id, 
-            game_id = self.id, 
+        message = Message(player_id = player.id,
+            game_id = self.id,
             message = message
         )
         db.session.add(message)
@@ -431,27 +435,46 @@ class Game(db.Model):
         
         return False
 
+    def get_remaining_time(self):
+        """Returns how much time is left, in seconds"""
+        return (self.end - datetime.now()).total_seconds()
+
     def start_game(self):
         """Starts the game. Calculates the end time"""
+        
+        if self.end is not None:
+            return False
+
         duration = timedelta(
-            days = self.days,
-            minutes = self.minutes,
-            hours = self.hours
+            days=self.days,
+            minutes=self.minutes,
+            hours=self.hours
         )
 
         self.start = datetime.now()
         self.end = self.start + duration
         self.active = True
+        self.add_message(self.players[0], "The game has been started")
 
         db.session.commit()
+        return True
     
     def end_game(self):
         """Ends the game and declares a winner"""
         self.active = False
         for player in self.players:
             player.final_value = player.get_total_worth()
+            player.user.played += 1
+            player.user.total_return += player.get_return()
+    
+        players = self.players
+        players.sort(key=attrgetter("final_value"), reverse=True)
+        players[0].user.wins += 1
 
-        self.players.sort(key=utils.worth_sort)
+        self.winner_id = players[0].user.id
+        db.session.commit()
+        print(f"Game overed quickly. The winner is {players[0].user.displayname}")
+        self.add_message(players[0], f"The game is now over. The winner is {players[0].user.displayname}")
 
     @classmethod
     def generate_game(cls):
@@ -471,14 +494,14 @@ class StockHistory(db.Model):
 
     price = db.Column(
         db.Float,
-        default = 0,
-        nullable = False
+        default=0,
+        nullable=False
     )
 
     timestamp = db.Column(
         db.DateTime, 
-        default = datetime.now(),
-        nullable = False
+        default=datetime.now(),
+        nullable=False
     )
     
     def serialize(self):
@@ -537,7 +560,6 @@ class User(db.Model):
     @classmethod
     def authenticate(cls, email, password):
         """Authenticates user using Bcrypt"""
-        print("OK ")
         user = User.query.filter_by(email=email).first()
         
         if user and bcrypt.check_password_hash(user.password, password):

@@ -18,7 +18,13 @@
                             player_return ) }} </span></div>
                 </div>
                 {% if not game.active %}
-                <small class="text-muted">Not started</small>
+                    {% if not game.end %}
+                    <small class="text-muted">Not started</small>
+                    {% else %}
+                    <small class="text-muted">Game ended</small>
+                    {% endif %}
+                {% else %}
+                    <small class="text-muted">{{ seconds_to_english( game.get_remaining_time() )}}</small>
                 {% endif %}
             </div>
         </a>

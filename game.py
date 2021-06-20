@@ -1,17 +1,32 @@
 import threading
 import os
-import datetime
+import random
+import time
+from datetime import timedelta, datetime
 from models import User, connect_db, db, Game, Player, Stock, PlayerStock, Message
 
+active = True
+
 def main():
-    """Main logic loop. Runs every second."""
+    """Main logic loop. Runs every 10 seconds."""
     #Check all games to see if any of them have ended.
-    games = Game.query.all()
+    games = Game.query.filter(Game.active==True).all()
+    print(f'CHECKING AL GAMES {games}')
     for game in games:
-        if datetime.now() > game.end_date:
+        #players = Player.query.filter(Player.game_id == game.id).all()
+        #for player in players:
+        #    player.balance = random.uniform(0, 55000)
+        #    db.session.commit()
+
+        if datetime.now() > game.end:
             print(f'Game {game.id} needs to end.')
-            game.end()
+            game.end_game()
 
 
-main_timer = threading.timer(10, main)
-main_timer.start()
+def main_wrapper():
+    while active:
+        main()
+        time.sleep(1)
+
+main_thread = threading.Timer(10, main_wrapper)
+main_thread.start()

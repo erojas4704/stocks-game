@@ -35,7 +35,7 @@ $(() => {
     }
 
     function gameTick(){
-        let secondsRemaining = Math.floor((new Date(game.end) - Date.now())/1000);
+        let secondsRemaining = Math.floor((new Date(game.end).getTime() - Date.now()) / 1000);
         updateTimer(secondsRemaining);
     }
 
@@ -71,10 +71,15 @@ $(() => {
         return frame;
     }
 
+    function getPlayerStanding(player){
+        return game.players.indexOf(player) + 1;
+    }
+
     function renderPlayer(player){
         let frame = getPlayerFrame(player.id);
-        console.log(`Renedering ${player.id}`);
-        console.log("Frame", frame)
+        let standing = getPlayerStanding(player)    ;// + 1;
+        //console.log(`Rendering ${player.id}`);
+        //console.log("Frame", frame)
 
         if(frame.length < 1){
             //Frame does not exist
@@ -92,7 +97,9 @@ $(() => {
         }else if(returns < 0){
             className = "text-danger";
         }
+        frame.insertAfter($(frame).parent().find("li").eq(standing - 1));
 
+        $('.g-standing', frame).text( getOrdinal(standing) );
         $('.g-name', frame).text(player.user.displayname)
         $('.g-portfolio', frame).text(`Portfolio: ${formatMoney(portfolioValue)} `);
         $('.g-balance', frame).text(`Balance: ${formatMoney(player.balance)} `);
@@ -110,7 +117,14 @@ $(() => {
             $("#game-start-status").hide();
             addMessage('The game has started!');
         }
+        if(!game.active && game.end){
+            //game is over
+            $("#game-start-status").hide();
+            $("#btn-start").hide();
+        }
+
         game = resp;
+        console.log(resp);
 
         if(!game.active){
             if(game.players.length > 1){
@@ -134,12 +148,32 @@ $(() => {
         })
     }
 
+    function getWinner(){
+        console.log(game.winner_id);
+        if(!game.winner_id){
+            return game.players[0];
+        }
+
+        return game.players.find( p => game.winner_id === p.userID );
+    }
+
+    function byTotal(a, b){
+        aTotal = a.portfolio + a.balance;
+        bTotal = b.portfolio + b.balance;
+
+        return bTotal - aTotal;
+    }
+
     function updateTimer(secondsRemaining){
         $("#timer").text("Game ends in " + secondsToEnglish(secondsRemaining));
-        console.log(secondsRemaining);
 
         if(secondsRemaining < 0 ){
             $("#timer").text('');
+            if(!game.active && game.end){
+                //Game is over. Get standings.
+                let winner = getWinner(game.players);
+                getPlayerFrame(winner.id).addClass("winner");
+            }
         }
 
         if(timerActive) {

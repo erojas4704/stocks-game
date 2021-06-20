@@ -83,3 +83,9 @@ background: #555;
     background-color: #34495e !important;
 }
 */
+
+li.winner {
+    background-color: #fff;
+    box-shadow: 0 0 12px 1px #98ccff;
+    z-index: 999;
+}
