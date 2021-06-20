@@ -1,3 +1,4 @@
+alembic==1.6.5
 bcrypt==3.2.0
 blinker==1.4
 certifi==2021.5.30
@@ -18,10 +19,13 @@ idna==2.10
 importlib-metadata==4.5.0
 itsdangerous==2.0.1
 Jinja2==3.0.1
+Mako==1.1.4
 MarkupSafe==2.0.1
 psycopg2==2.8.6
 pycparser==2.20
+python-dateutil==2.8.1
 python-dotenv==0.17.1
+python-editor==1.0.4
 requests==2.25.1
 six==1.16.0
 SQLAlchemy==1.4.18
