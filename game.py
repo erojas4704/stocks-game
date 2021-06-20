@@ -11,7 +11,7 @@ def main():
     """Main logic loop. Runs every 10 seconds."""
     #Check all games to see if any of them have ended.
     games = Game.query.filter(Game.active==True).all()
-    print(f'CHECKING AL GAMES {games}')
+    #print(f'CHECKING AL GAMES {games}')
     for game in games:
         #players = Player.query.filter(Player.game_id == game.id).all()
         #for player in players:
