@@ -200,9 +200,7 @@ class PlayerHistory(db.Model):
             value=amount
         )
 
-        histories = PlayerHistory.query.filter(PlayerHistory.player_id == player.id).order_by(PlayerHistory.timestamp.desc()).limit(1)
-        if histories and len(histories) > 0:
-            last = histories[0]
+        last = PlayerHistory.query.filter(PlayerHistory.player_id == player.id).order_by(PlayerHistory.timestamp.desc()).first()
 
         if last and last.timestamp == hist.timestamp:
             return False
