@@ -56,7 +56,7 @@ async function getMessages(gameID) {
     return resp.data;
 }
 
-async function getGameHistory(gameID) {
-    let resp = await axios.get(`/api/games/${gameID}/history`)
+async function getGameHistory(playerID) {
+    let resp = await axios.get(`/api/games/${playerID}/history`)
     return resp.data;
 }

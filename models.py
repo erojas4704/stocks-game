@@ -200,6 +200,7 @@ class PlayerHistory(db.Model):
             value=amount
         )
 
+        #TODO don't save identical histories
         db.session.add(hist)
         db.session.commit()
 
@@ -224,7 +225,7 @@ class Player(db.Model):
         autoincrement=True
     )
 
-    user = relationship(
+    user = relationship(    
         "User"
     )
     

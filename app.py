@@ -248,10 +248,10 @@ def do_search():
         'stocks': [stock.serialize() for stock in new_stocks]
     })
 
-@app.route('/api/games/<game_id>/history', methods=['GET'])
-def get_game_history(game_id):
+@app.route('/api/games/<player_id>/history', methods=['GET'])
+def get_game_history(player_id):
     """Given a game ID, get the game history"""
-    history = PlayerHistory.query.filter(PlayerHistory.player.game_id == game_id).all()
+    history = PlayerHistory.query.filter(PlayerHistory.player_id == player_id).all()
 
     return jsonify({
         'history': [hist.serialize() for hist in history]

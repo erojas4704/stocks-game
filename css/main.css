@@ -89,3 +89,8 @@ li.winner {
     box-shadow: 0 0 12px 1px #98ccff;
     z-index: 999;
 }
+
+canvas {
+    width: 100%;
+    height: auto;
+  }
