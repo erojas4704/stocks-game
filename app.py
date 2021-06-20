@@ -407,3 +407,9 @@ def logout():
 def login_user(user):
     """ Saves the user to the session """
     session[CURR_USER_KEY] = user.id
+
+#TODO user profiles don't work
+#TODO change the color of the modal to better fit the scheme
+#TODO add graphing using chart.js and the historical data we've saved
+#TODO purge old games from the database and older historical data as not to make our db too bloated
+#TODO add images for people to look at
