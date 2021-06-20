@@ -66,15 +66,21 @@ data-gameid="{{game.id}}">
             {% endfor %}
         </ul>
     </div>
-    <div class="col" id="messages">
-        {% for msg in game.messages %}
-            {{msg.message}}
-        {% endfor %}
+    <div class="col">
+        <div class="col" id="messages">
+            {% for msg in game.messages %}
+                {{msg.message}}
+            {% endfor %}
+        </div>
+        <div>
+        <canvas id="chart"></canvas>
+        </div>
     </div>
 </div>
 {% endblock %}
 {% block scripts %}
     <!-- TODO. Using a transpiler, maybe remake these into modules, if there's time. -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/js/modal.js"></script>
     <script src="/js/api.js"></script>
     <script src="/js/utils.js"></script>

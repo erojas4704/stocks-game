@@ -1,7 +1,7 @@
 """Flask app 24.5"""
 from flask import Flask, send_from_directory, request, redirect, render_template, flash, jsonify, session, g 
 from flask_debugtoolbar import DebugToolbarExtension
-from models import User, connect_db, db, Game, Player, Stock, PlayerStock, Message
+from models import User, connect_db, db, Game, Player, Stock, PlayerStock, Message, PlayerHistory
 #from forms import RegisterUserForm, LoginForm, FeedbackForm, PasswordForm
 from flask_sqlalchemy import SQLAlchemy
 from forms import RegisterForm, LoginForm, NewGameForm
@@ -247,6 +247,15 @@ def do_search():
     return jsonify({
         'stocks': [stock.serialize() for stock in new_stocks]
     })
+
+@app.route('/api/games/<game_id>/history', methods=['GET'])
+def get_game_history(game_id):
+    """Given a game ID, get the game history"""
+    history = PlayerHistory.query.filter(PlayerHistory.player.game_id == game_id).all()
+
+    return jsonify({
+        'history': [hist.serialize() for hist in history]
+    }), 201
 
 
 @app.route('/api/games/<game_id>/info', methods=['GET'])

@@ -192,6 +192,7 @@ class PlayerHistory(db.Model):
         nullable=False
     )
 
+
     @classmethod
     def record(cls, player, amount):
         hist = PlayerHistory(
@@ -223,8 +224,10 @@ class Player(db.Model):
         autoincrement=True
     )
 
-    user = relationship("User")
-
+    user = relationship(
+        "User"
+    )
+    
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete="cascade"),

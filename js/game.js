@@ -7,7 +7,6 @@ $(() => {
     let timerActive = true;
     let stockData = {};
 
-
     //TODO poll the server every X amount of seconds. We'll be moving to sockets soon instead of this.
 
 
@@ -216,3 +215,38 @@ $(() => {
         return `${days > 0? `${days} days` : ''}  ${ hours > 0? `${hours % 24} hours` : ''}  ${ minutes > 0? `${minutes % 60} minutes` : ''}  ${seconds % 60} seconds`
     }
 });
+
+
+getGameHistory(gameID).then( r => {
+    console.log(r);
+})
+
+const labels = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+  ];
+
+  const data = {
+    labels: labels,
+    datasets: [{
+      label: 'My First dataset',
+      backgroundColor: 'rgb(255, 99, 132)',
+      borderColor: 'rgb(255, 99, 132)',
+      data: [0, 10, 5, 2, 20, 30, 45],
+    }]
+  };
+
+  const config = {
+    type: 'line',
+    data,
+    options: {}
+  };
+
+  let myChart = new Chart(
+    document.getElementById('chart'),
+    config
+  );
