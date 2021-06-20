@@ -26,7 +26,7 @@ def main():
 def main_wrapper():
     while active:
         main()
-        time.sleep(1)
+        time.sleep(10)
 
 main_thread = threading.Timer(10, main_wrapper)
 main_thread.start()
