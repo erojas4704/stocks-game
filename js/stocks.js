@@ -376,10 +376,10 @@ $( () => {
         $('tbody', table).append(`
             <tr class="stock-row">
                 <td> <span class="badge badge-success s-symbol"> ${symbol} </span></td>
-                <td class="s-name">${stock.name}</td>
-                <td class="s-performance ${getMoneyClass(stockPerformance)}">${formatMoney(stockPerformance, true, true)}</td>
+                <td class="s-name d-none d-lg-table-cell">${stock.name}</td>
+                <td class="s-performance d-none d-lg-table-cell ${getMoneyClass(stockPerformance)}">${formatMoney(stockPerformance, true, true)}</td>
                 <td class="s-shares">${playerStock?.quantity || 0}</td>
-                <td class="s-equity">${formatMoney( (playerStock?.quantity || 0)* stock.current )}</td>
+                <td class="s-equity d-none d-lg-table-cell">${formatMoney( (playerStock?.quantity || 0)* stock.current )}</td>
                 <td class="s-return">${formatMoney( playerStock? calculateReturn(playerStock, stock) : 0 ) || formatMoney(0)}</td>
                 <td class="s-current">${stock.current}</td>
             </tr>      
