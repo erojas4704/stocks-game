@@ -8,3 +8,12 @@ https://www.chartjs.org/
 have a whole dict of stocks saved in local storage for faster loading and responsiveness
 
 A link to company site
+
+Consider
+d3.js
+
+yahoo finance API 
+Ex::
+https://query1.finance.yahoo.com/v7/finance/quote?symbols=aapl
+
+Refactoring starts tomorrow
