@@ -25,7 +25,7 @@ Aside from the competitive element, this game provides the user with a risk free
 
 ## APIs Used
 
-This application was built on Flask with a Postgres back-end for database. The front-end was built on Bootstrap for visuals and site responsiveness. Our realtime stock market data is pulled using [finnhub.io](https://finhubb.io).
+This application was built on Flask with a Postgres back-end for database. The front-end was built on Bootstrap for visuals and site responsiveness. Our realtime stock market data is pulled using [finnhub.io](https://finnhub.io).
 
 ## Schema
 
