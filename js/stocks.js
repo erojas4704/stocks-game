@@ -1,5 +1,3 @@
-let getR;
-
 $( () => {
 
     const data = $("#session-data");
@@ -25,8 +23,6 @@ $( () => {
 
         return result;
     }
-    //TODO erase
-    getR = getRow;
 
 
     function updateListing(symbol){
@@ -298,31 +294,6 @@ $( () => {
         });
 
     }
-
-    /**Get stock details from our server API.
-     * If we are rate limited, we will only receive old data.
-     */
-    /*
-    async function getStockDetails(symbol){
-        //TODO error handling
-        let resp = await axios.get('/api/stock',{
-            params:{
-                symbol
-            }
-        });
-
-        stockData[symbol] = resp.data;
-
-        return resp.data;
-    }
-
-    async function getPlayerStats(gameID){
-        let resp = await axios.get(`/api/games/${gameID}/player`)
-
-        renderPlayerStats(resp.data);
-        return resp.data;
-    }
-    */
 
     function updateAllListings(){
         $(".s-symbol").each( (i, node) => {

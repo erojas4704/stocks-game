@@ -10,6 +10,8 @@ calls = 0
 #TODO find a way to delay calls that are ignored.
 #TODO make calls asynchronous, if possible.
 
+MAX_CALLS_PER_MINUTE = 30
+
 
 def search(term):
     """Search for a symbol using a term"""
@@ -30,10 +32,10 @@ def basic_details(symbol):
     global calls
 
     #Keep us under the rate limit. Ignore calls that would exceed it.
-    if calls >= 60:
+    if calls >= MAX_CALLS_PER_MINUTE:
         print("***ABOUT TO EXCEED RATE LIMIT***")
         return False
-    elif calls == 0:
+    elif calls < 1:
         Timer(1.0, reset_calls).start()
     
     calls += 1
@@ -53,7 +55,7 @@ def quote(symbol):
     global calls
 
     #Keep us under the rate limit. Ignore calls that would exceed it.
-    if calls >= 60:
+    if calls >= MAX_CALLS_PER_MINUTE:
         return False
     elif calls == 0:
         Timer(1.0, reset_calls).start()
@@ -63,8 +65,8 @@ def quote(symbol):
     print(f"[MARKET]: Currently we are at {calls} calls.")
 
     resp = requests.get(f'https://finnhub.io/api/v1/quote?symbol={symbol}&token={API_KEY}')
-
     json = resp.json()
+    
     #last ditch effort to catch other errors
     if json.get("error"):
         print("There's been an error")

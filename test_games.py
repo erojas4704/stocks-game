@@ -4,15 +4,20 @@
 # python -m unittest test_games.py
 
 import os
+import json
 from unittest import TestCase
+from flask import g
 from dotenv import load_dotenv
-os.environ['DB_URL'] = "postgresql://ass:ass@localhost:5432/stocksgame_test"
+
 load_dotenv()
+os.environ['DB_URL'] = os.environ.get('TEST_URL')
+
+
 
 from models import db, Game, User, Player, Message
-from secrets import DB_USER, DB_PASSWORD
 
 from app import app
+from app import CURR_USER_KEY
 import game
 
 db.create_all()
@@ -24,6 +29,7 @@ class GameTestCase(TestCase):
         Game.query.delete()
         Player.query.delete()
         User.query.delete()
+        db.session.commit()
 
         self.users = []
         self.client = app.test_client()
@@ -63,9 +69,6 @@ class GameTestCase(TestCase):
             )
         )
 
-        for user in self.users:
-            db.session.add(user)
-
         db.session.commit()
 
         self.testgame = Game(
@@ -75,6 +78,9 @@ class GameTestCase(TestCase):
             hours=0,
             days=0
         )
+        
+        for user in self.users:
+            db.session.add(user)
 
         db.session.add(self.testgame)
         db.session.commit()
@@ -83,12 +89,22 @@ class GameTestCase(TestCase):
             self.testgame.add_player(user)
 
         db.session.commit()
+        
+        self.testuser = self.users[0]
+        #login my user
+        with app.test_client() as client:
+            client.post('/login', data = {
+                'email': self.testuser.email,
+                'password': '123456'
+            });
+
     
     def tearDown(self):
-        print('thanks')
+        return
 
     def test_winner(self):
         """Does the game determine the right winner?"""
+        return
         i = len(self.testgame.players)
         for player in self.testgame.players:
             i += 1
@@ -103,3 +119,15 @@ class GameTestCase(TestCase):
         self.assertEqual(winner_user.id, winner_id)
 
     game.active = False
+
+    def test_purchasing(self):
+        """Can an user execute trades without incident?"""
+        
+        self.testgame.start_game()
+        with app.test_client() as client:
+            response = client.post(f"/games/{self.testgame.id}/trade/buy")
+        
+
+        data_dict = json.loads(response.data)
+        self.assertEqual(response.status, '200 OK')
+        self.assertNotIn("error", data_dict) 
