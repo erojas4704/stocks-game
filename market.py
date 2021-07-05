@@ -66,13 +66,11 @@ def quote(symbol):
 
     resp = requests.get(f'https://finnhub.io/api/v1/quote?symbol={symbol}&token={API_KEY}')
     json = resp.json()
-    
+
     #last ditch effort to catch other errors
     if json.get("error"):
         print("There's been an error")
         return json
-
-    
 
     return resp.json()
 
