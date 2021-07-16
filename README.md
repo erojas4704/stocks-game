@@ -65,4 +65,4 @@ A diagram of the schema can be seen [here](https://raw.githubusercontent.com/ero
 9. Allow games to have their own rules for day-trading or fractional shares.
 10. Leaderboards.
 11. Crypto integration.
-
+12. Allow users to bookmark and track stocks they are interested in.    
