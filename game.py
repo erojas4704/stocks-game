@@ -28,5 +28,5 @@ def main_wrapper():
         main()
         time.sleep(10)
 
-main_thread = threading.Timer(10, main_wrapper)
-main_thread.start()
+#main_thread = threading.Timer(10, main_wrapper)
+#main_thread.start()

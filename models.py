@@ -95,8 +95,7 @@ class Stock(db.Model):
             
         resp = market.quote(self.symbol.upper())
 
-        if resp.get('error'):
-            print(resp['error'])
+        if resp == None:
             print(f'[CRITICAL]: Could not get any information for {self.symbol}.')
             return
 
